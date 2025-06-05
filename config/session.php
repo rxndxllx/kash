@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Str;
 
 return [
@@ -18,7 +20,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    "driver" => env("SESSION_DRIVER", "database"),
 
     /*
     |--------------------------------------------------------------------------
@@ -32,9 +34,9 @@ return [
     |
     */
 
-    'lifetime' => (int) env('SESSION_LIFETIME', 120),
+    "lifetime" => (int) env("SESSION_LIFETIME", 120),
 
-    'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
+    "expire_on_close" => env("SESSION_EXPIRE_ON_CLOSE", false),
 
     /*
     |--------------------------------------------------------------------------
@@ -42,12 +44,12 @@ return [
     |--------------------------------------------------------------------------
     |
     | This option allows you to easily specify that all of your session data
-    | should be encrypted before it's stored. All encryption is performed
+    | should be encrypted before it"s stored. All encryption is performed
     | automatically by Laravel and you may use the session like normal.
     |
     */
 
-    'encrypt' => env('SESSION_ENCRYPT', false),
+    "encrypt" => env("SESSION_ENCRYPT", false),
 
     /*
     |--------------------------------------------------------------------------
@@ -60,7 +62,7 @@ return [
     |
     */
 
-    'files' => storage_path('framework/sessions'),
+    "files" => storage_path("framework/sessions"),
 
     /*
     |--------------------------------------------------------------------------
@@ -73,7 +75,7 @@ return [
     |
     */
 
-    'connection' => env('SESSION_CONNECTION'),
+    "connection" => env("SESSION_CONNECTION"),
 
     /*
     |--------------------------------------------------------------------------
@@ -82,18 +84,18 @@ return [
     |
     | When using the "database" session driver, you may specify the table to
     | be used to store sessions. Of course, a sensible default is defined
-    | for you; however, you're welcome to change this to another table.
+    | for you; however, you"re welcome to change this to another table.
     |
     */
 
-    'table' => env('SESSION_TABLE', 'sessions'),
+    "table" => env("SESSION_TABLE", "sessions"),
 
     /*
     |--------------------------------------------------------------------------
     | Session Cache Store
     |--------------------------------------------------------------------------
     |
-    | When using one of the framework's cache driven session backends, you may
+    | When using one of the framework"s cache driven session backends, you may
     | define the cache store which should be used to store the session data
     | between requests. This must match one of your defined cache stores.
     |
@@ -101,7 +103,7 @@ return [
     |
     */
 
-    'store' => env('SESSION_STORE'),
+    "store" => env("SESSION_STORE"),
 
     /*
     |--------------------------------------------------------------------------
@@ -114,7 +116,7 @@ return [
     |
     */
 
-    'lottery' => [2, 100],
+    "lottery" => [2, 100],
 
     /*
     |--------------------------------------------------------------------------
@@ -127,9 +129,9 @@ return [
     |
     */
 
-    'cookie' => env(
-        'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
+    "cookie" => env(
+        "SESSION_COOKIE",
+        Str::slug(env("APP_NAME", "laravel"), "_")."_session"
     ),
 
     /*
@@ -139,11 +141,11 @@ return [
     |
     | The session cookie path determines the path for which the cookie will
     | be regarded as available. Typically, this will be the root path of
-    | your application, but you're free to change this when necessary.
+    | your application, but you"re free to change this when necessary.
     |
     */
 
-    'path' => env('SESSION_PATH', '/'),
+    "path" => env("SESSION_PATH", "/"),
 
     /*
     |--------------------------------------------------------------------------
@@ -152,11 +154,11 @@ return [
     |
     | This value determines the domain and subdomains the session cookie is
     | available to. By default, the cookie will be available to the root
-    | domain and all subdomains. Typically, this shouldn't be changed.
+    | domain and all subdomains. Typically, this shouldn"t be changed.
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    "domain" => env("SESSION_DOMAIN"),
 
     /*
     |--------------------------------------------------------------------------
@@ -165,11 +167,11 @@ return [
     |
     | By setting this option to true, session cookies will only be sent back
     | to the server if the browser has a HTTPS connection. This will keep
-    | the cookie from being sent to you when it can't be done securely.
+    | the cookie from being sent to you when it can"t be done securely.
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    "secure" => env("SESSION_SECURE_COOKIE"),
 
     /*
     |--------------------------------------------------------------------------
@@ -178,11 +180,11 @@ return [
     |
     | Setting this value to true will prevent JavaScript from accessing the
     | value of the cookie and the cookie will only be accessible through
-    | the HTTP protocol. It's unlikely you should disable this option.
+    | the HTTP protocol. It"s unlikely you should disable this option.
     |
     */
 
-    'http_only' => env('SESSION_HTTP_ONLY', true),
+    "http_only" => env("SESSION_HTTP_ONLY", true),
 
     /*
     |--------------------------------------------------------------------------
@@ -199,7 +201,7 @@ return [
     |
     */
 
-    'same_site' => env('SESSION_SAME_SITE', 'lax'),
+    "same_site" => env("SESSION_SAME_SITE", "lax"),
 
     /*
     |--------------------------------------------------------------------------
@@ -212,6 +214,6 @@ return [
     |
     */
 
-    'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
+    "partitioned" => env("SESSION_PARTITIONED_COOKIE", false),
 
 ];
