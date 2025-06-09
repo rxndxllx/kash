@@ -5,9 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get("/", function () {
-    return Inertia::render("welcome");
-})->name("home");
+Route::get("/", fn () => redirect()->route("login"))->name("home");
 
 Route::middleware(["auth", "verified"])->group(function () {
     Route::get("dashboard", function () {

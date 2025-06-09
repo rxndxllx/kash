@@ -78,74 +78,106 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
+    --background: oklch(98.5% 0.005 200); /* Near white with a hint of sky blue */
+    --foreground: oklch(38% 0.04 260); /* Deep soft blue-gray for contrast */
+
+    --card: oklch(97% 0.01 200); /* Light with subtle blue */
+    --card-foreground: oklch(38% 0.04 260);
+
+    --popover: oklch(97% 0.01 200);
+    --popover-foreground: oklch(38% 0.04 260);
+
+    --primary: #00afd8; /* Vibrant sky blue */
+    --primary-foreground: oklch(98.5% 0.005 200); /* Crisp white-blue text */
+
+    --secondary: oklch(72% 0.24 210); /* Bright cyan-leaning blue */
+    --secondary-foreground: oklch(15% 0.015 240); /* Deep navy for contrast */
+
+    --muted: oklch(93% 0.01 200); /* Light muted blue-gray */
+    --muted-foreground: oklch(58% 0.04 220); /* Mid blue-gray */
+
+    --accent: oklch(86% 0.1 205); /* Icy pastel blue */
+    --accent-foreground: oklch(25% 0.025 240); /* Deep cool slate */
+
+    --destructive: oklch(70% 0.14 25); /* Soft coral red */
+    --destructive-foreground: oklch(98.5% 0.005 200);
+
+    --border: oklch(91% 0.01 200); /* Very light bluish border */
+    --input: oklch(91% 0.01 200);
+    --ring: oklch(83% 0.015 200); /* Slightly darker outline */
+
+    --chart-1: oklch(65% 0.32 200); /* Sky blue chart bar */
+    --chart-2: oklch(70% 0.16 220); /* Light teal-blue */
+    --chart-3: oklch(58% 0.12 240); /* Muted blue-purple */
+    --chart-4: oklch(76% 0.18 80); /* Soft mint-lime */
+    --chart-5: oklch(84% 0.1 50); /* Light gold */
+
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
+
+    --sidebar: oklch(97.5% 0.005 200); /* Subtle bluish white */
+    --sidebar-foreground: oklch(38% 0.04 260);
+    --sidebar-primary: oklch(60% 0.26 210); /* Sky blue */
+    --sidebar-primary-foreground: oklch(98.5% 0.005 200);
+    --sidebar-accent: oklch(86% 0.1 205);
+    --sidebar-accent-foreground: oklch(25% 0.025 240);
+
+    --sidebar-border: oklch(91% 0.01 200);
+    --sidebar-ring: oklch(83% 0.015 200);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.396 0.141 25.723);
-    --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --background: oklch(20% 0.015 250); /* Very dark cool blue-gray */
+    --foreground: oklch(92% 0.01 230); /* Near-white with a hint of cool tint */
+
+    --card: oklch(24% 0.02 250); /* Slightly lighter dark surface */
+    --card-foreground: oklch(92% 0.01 230);
+
+    --popover: oklch(24% 0.02 250);
+    --popover-foreground: oklch(92% 0.01 230);
+
+    --primary: oklch(70% 0.3 210); /* Vibrant, readable sky blue */
+    --primary-foreground: oklch(15% 0.01 250); /* Dark navy for contrast */
+
+    --secondary: oklch(60% 0.25 220); /* Slightly softer blue */
+    --secondary-foreground: oklch(95% 0.01 230);
+
+    --muted: oklch(28% 0.015 250); /* Dimmed blue-gray */
+    --muted-foreground: oklch(65% 0.02 240); /* Subtle blue-silver */
+
+    --accent: oklch(68% 0.12 210); /* Light teal-blue */
+    --accent-foreground: oklch(18% 0.01 250);
+
+    --destructive: oklch(60% 0.14 25); /* Softer coral red for dark bg */
+    --destructive-foreground: oklch(98% 0.005 100);
+
+    --border: oklch(30% 0.01 250); /* Dark bluish line */
+    --input: oklch(30% 0.01 250);
+    --ring: oklch(45% 0.02 250); /* Slight glow ring */
+
+    --chart-1: oklch(72% 0.28 200); /* Bright sky blue */
+    --chart-2: oklch(65% 0.18 220); /* Clear cyan */
+    --chart-3: oklch(58% 0.12 250); /* Lavender blue */
+    --chart-4: oklch(68% 0.2 90); /* Pastel mint */
+    --chart-5: oklch(72% 0.16 60); /* Light pastel mustard */
+
+    --radius: 0.625rem;
+
+    --sidebar: oklch(22% 0.015 250);
+    --sidebar-foreground: oklch(92% 0.01 230);
+    --sidebar-primary: oklch(60% 0.25 210);
+    --sidebar-primary-foreground: oklch(15% 0.01 250);
+    --sidebar-accent: oklch(68% 0.12 210);
+    --sidebar-accent-foreground: oklch(18% 0.01 250);
+
+    --sidebar-border: oklch(30% 0.01 250);
+    --sidebar-ring: oklch(45% 0.02 250);
+}
+
+.auth-hero {
+    background-image: url('/auth-hero.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: bottom;
 }
 
 @layer base {

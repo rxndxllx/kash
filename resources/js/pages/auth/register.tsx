@@ -1,16 +1,16 @@
-import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
-
-import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AuthLayout from '@/layouts/auth-layout';
+import { Button } from "@/components/ui/button";
+import { FormEventHandler } from "react";
+import { Head, useForm } from "@inertiajs/react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { LoaderCircle } from "lucide-react";
+import AuthLayout from "@/layouts/auth-layout";
+import InputError from "@/components/input-error";
+import TextLink from "@/components/text-link";
 
 type RegisterForm = {
-    name: string;
+    first_name: string;
+    last_name: string;
     email: string;
     password: string;
     password_confirmation: string;
@@ -18,16 +18,17 @@ type RegisterForm = {
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
-        name: '',
-        email: '',
-        password: '',
-        password_confirmation: '',
+        first_name: "",
+        last_name: "",
+        email: "",
+        password: "",
+        password_confirmation: "",
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+        post(route("register"), {
+            onFinish: () => reset("password", "password_confirmation"),
         });
     };
 
@@ -37,20 +38,36 @@ export default function Register() {
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="first_name">First Name</Label>
                         <Input
-                            id="name"
+                            id="first_name"
                             type="text"
                             required
                             autoFocus
                             tabIndex={1}
-                            autoComplete="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
+                            autoComplete="first_name"
+                            value={data.first_name}
+                            onChange={(e) => setData("first_name", e.target.value)}
                             disabled={processing}
-                            placeholder="Full name"
+                            placeholder="ex. Ryan"
                         />
-                        <InputError message={errors.name} className="mt-2" />
+                        <InputError message={errors.first_name} className="mt-2" />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="last_name">Last Name</Label>
+                        <Input
+                            id="last_name"
+                            type="text"
+                            required
+                            autoFocus
+                            tabIndex={1}
+                            autoComplete="last_name"
+                            value={data.last_name}
+                            onChange={(e) => setData("last_name", e.target.value)}
+                            disabled={processing}
+                            placeholder="ex. Cruz"
+                        />
+                        <InputError message={errors.last_name} className="mt-2" />
                     </div>
 
                     <div className="grid gap-2">
@@ -62,9 +79,9 @@ export default function Register() {
                             tabIndex={2}
                             autoComplete="email"
                             value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
+                            onChange={(e) => setData("email", e.target.value)}
                             disabled={processing}
-                            placeholder="email@example.com"
+                            placeholder="ex. ryancruz@example.com"
                         />
                         <InputError message={errors.email} />
                     </div>
@@ -78,7 +95,7 @@ export default function Register() {
                             tabIndex={3}
                             autoComplete="new-password"
                             value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
+                            onChange={(e) => setData("password", e.target.value)}
                             disabled={processing}
                             placeholder="Password"
                         />
@@ -94,7 +111,7 @@ export default function Register() {
                             tabIndex={4}
                             autoComplete="new-password"
                             value={data.password_confirmation}
-                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                            onChange={(e) => setData("password_confirmation", e.target.value)}
                             disabled={processing}
                             placeholder="Confirm password"
                         />
@@ -108,8 +125,8 @@ export default function Register() {
                 </div>
 
                 <div className="text-muted-foreground text-center text-sm">
-                    Already have an account?{' '}
-                    <TextLink href={route('login')} tabIndex={6}>
+                    Already have an account?{" "}
+                    <TextLink href={route("login")} tabIndex={6}>
                         Log in
                     </TextLink>
                 </div>
