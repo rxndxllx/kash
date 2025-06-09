@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AccountController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -11,6 +12,8 @@ Route::middleware(["auth", "verified"])->group(function () {
     Route::get("dashboard", function () {
         return Inertia::render("dashboard");
     })->name("dashboard");
+
+    Route::get("accounts", [AccountController::class, "index"])->name("accounts");
 });
 
 require __DIR__."/settings.php";
