@@ -4,10 +4,14 @@ import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatAmount } from "@/lib/utils";
 import { Head } from "@inertiajs/react";
+import { Input } from "@/components/ui/input";
 import { isNull } from "lodash";
-import { MoreHorizontal } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { MoreHorizontal, CircleFadingPlus } from "lucide-react";
 import { Paginated, type Account } from "@/types/models";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { type BreadcrumbItem } from "@/types";
 import * as Flags from "country-flag-icons/react/3x2";
@@ -94,69 +98,129 @@ export default function Accounts({ accounts }: AccountProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Accounts" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="flex items-center">
-                    <div className="flex items-center justify-start space-x-2 flex-1">
-                        <Pagination>
-                            <PaginationContent>
-                                {accounts.meta.links.map((link, i) => {
-                                    const isFirst = i === 0
-                                    const isLast = i === accounts.meta.links.length - 1
-                                    const isPage = !isFirst && !isLast
-
-                                    return (
-                                        <PaginationItem key={i}>
-                                        {isFirst && (
-                                            <PaginationPrevious
-                                                href={link.url || "#"}
-                                                disabled={isNull(link.url)}
-                                            />
-                                        )}
-
-                                        {isPage && (
-                                            <PaginationLink
-                                                href={link.url || "#"}
-                                                isActive={link.active}
-                                                disabled={isNull(link.url)}
-                                            >
-                                                {link.label}
-                                            </PaginationLink>
-                                        )}
-
-                                        {isLast && (
-                                            <PaginationNext
-                                                href={link.url || "#"}
-                                                disabled={isNull(link.url)}
-                                            />
-                                        )}
-                                        </PaginationItem>
-                                    );
-                                })}
-                            </PaginationContent>
-                        </Pagination>
-                    </div>
+            <div className="flex h-full flex-col gap-4 rounded-xl p-4">
+                <div className="flex justify-between items-center">
+                    <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+                        My Accounts
+                    </h2>
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button size="lg">
+                                Create New
+                                <CircleFadingPlus height={8} width={8}/>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent>
+                            <SheetHeader>
+                            <SheetTitle>Edit profile</SheetTitle>
+                            <SheetDescription>
+                                Make changes to your profile here. Click save when you&apos;re done.
+                            </SheetDescription>
+                            </SheetHeader>
+                            <div className="grid flex-1 auto-rows-min gap-6 px-4">
+                            <div className="grid gap-3">
+                                <Label htmlFor="sheet-demo-name">Name</Label>
+                                <Input id="sheet-demo-name" defaultValue="Pedro Duarte" />
+                            </div>
+                            <div className="grid gap-3">
+                                <Label htmlFor="sheet-demo-username">Username</Label>
+                                <Input id="sheet-demo-username" defaultValue="@peduarte" />
+                            </div>
+                            </div>
+                            <SheetFooter>
+                            <Button type="submit">Save changes</Button>
+                            <SheetClose asChild>
+                                <Button variant="outline">Close</Button>
+                            </SheetClose>
+                            </SheetFooter>
+                        </SheetContent>
+                    </Sheet>
                 </div>
-                <div className="border rounded-xl p-4">
-                    <Table>
-                        <TableHeader>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id} className="font-bold">
-                                                {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                    )}
-                                            </TableHead>
-                                        )
-                                    })}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
+                <div className="flex items-center py-2 justify-between">
+                    <div className="flex items-center justify-start space-x-2">
+                        <Input placeholder="Search" className="w-96 lg:w-[500px]"/>
+                        <Select>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Currency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="light">Light</SelectItem>
+                                <SelectItem value="dark">Dark</SelectItem>
+                                <SelectItem value="system">System</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="light">Light</SelectItem>
+                                <SelectItem value="dark">Dark</SelectItem>
+                                <SelectItem value="system">System</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <Pagination className="justify-end">
+                        <PaginationContent>
+                            {accounts.meta.links.map((link, i) => {
+                                const isFirst = i === 0
+                                const isLast = i === accounts.meta.links.length - 1
+                                const isPage = !isFirst && !isLast
+
+                                return (
+                                    <PaginationItem key={i}>
+                                    {isFirst && (
+                                        <PaginationPrevious
+                                            href={link.url || "#"}
+                                            disabled={isNull(link.url)}
+                                        />
+                                    )}
+
+                                    {isPage && (
+                                        <PaginationLink
+                                            href={link.url || "#"}
+                                            isActive={link.active}
+                                            disabled={isNull(link.url)}
+                                            className="hidden 2xl:block"
+                                        >
+                                            {link.label}
+                                        </PaginationLink>
+                                    )}
+
+                                    {isLast && (
+                                        <PaginationNext
+                                            href={link.url || "#"}
+                                            disabled={isNull(link.url)}
+                                        />
+                                    )}
+                                    </PaginationItem>
+                                );
+                            })}
+                        </PaginationContent>
+                    </Pagination>
+                </div>
+                <div className="border rounded-xl h-full overflow-y-scroll">
+                    <div className="w-full max-h-72 p-4 pt-0">
+                        <Table>
+                            <TableHeader className="sticky top-0 bg-background p-4">
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <TableRow key={headerGroup.id}>
+                                        {headerGroup.headers.map((header) => {
+                                            return (
+                                                <TableHead key={header.id} className="font-extrabold p-4">
+                                                    {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                        )}
+                                                </TableHead>
+                                            )
+                                        })}
+                                    </TableRow>
+                                ))}
+                            </TableHeader>
+                            <TableBody>
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
                                 <TableRow
@@ -172,13 +236,21 @@ export default function Accounts({ accounts }: AccountProps) {
                                 ))
                             ) : (
                                 <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
-                                </TableCell>
+                                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                                        No results.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                            {table.getRowModel().rows?.length < 20 && (
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                                        No more rows to show.
+                                    </TableCell>
                                 </TableRow>
                             )}
                             </TableBody>
-                    </Table>
+                        </Table>
+                    </div>   
                 </div>
                 <div className="text-muted-foreground text-sm">
                         Showing {table.getFilteredRowModel().rows.length} item(s) out of {accounts.meta.total}
