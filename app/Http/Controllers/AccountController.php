@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AccountResource;
+use App\Models\Account;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -33,7 +34,14 @@ class AccountController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        logger($request);
+        Account::create([
+            "name" => $request->name,
+            "currency" => $request->currency,
+            "type" => $request->type,
+            "balance" => $request->initial_balance,
+            "user_id" => request()->user()->id,
+        ]);
     }
 
     /**

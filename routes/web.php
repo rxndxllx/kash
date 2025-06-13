@@ -14,6 +14,7 @@ Route::middleware(["auth", "verified"])->group(function () {
     })->name("dashboard");
 
     Route::get("accounts", [AccountController::class, "index"])->name("accounts");
+    Route::post("accounts", [AccountController::class, "store"])->name("create-account");
 });
 
 require __DIR__."/settings.php";

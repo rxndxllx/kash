@@ -31,3 +31,22 @@ export interface SharedData {
     sidebarOpen: boolean;
     [key: string]: unknown;
 }
+
+export interface BaseTableFilter {
+    key: string;
+    placeholder: string;
+}
+
+interface SelectTableFilter extends BaseTableFilter {
+    type: "select";
+    options: {
+        title: string;
+        value: string;
+    }[];
+}
+
+interface SearchBarTableFilter extends BaseTableFilter {
+    type: "searchBar"
+}
+
+export type TableFilter = SearchBarTableFilter | SelectTableFilter;
