@@ -116,7 +116,7 @@ function DataTableFilters({ filters }: { filters: TableFilter[] }) {
  * @todo
  * 1. Limit the page numbers shown
  */
-function DataTablePagination<T>({ data }: { data: Paginated<T>}) {
+function DataTablePagination<T>({ data }: { data: Paginated<T> }) {
     return (
         <Pagination className="justify-end">
             <PaginationContent>

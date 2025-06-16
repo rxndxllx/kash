@@ -35,7 +35,7 @@ export default function Accounts({ accounts }: AccountProps) {
                     <Heading title="My Accounts" description="View and manage all your linked accounts in one place" />
                     <CreateAccountFormTrigger />
                 </div>
-                <DataTable table={table} data={accounts} filters={ACCOUNTS_TABLE_FILTERS}/>
+                <DataTable table={table} data={accounts} filters={ACCOUNTS_TABLE_FILTERS} />
             </div>
         </AppLayout>
     );

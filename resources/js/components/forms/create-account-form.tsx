@@ -15,26 +15,27 @@ import InputError from "@/components/input-error";
 
 type CreateAccountForm = {
     name: string;
-    initial_balance: number;
+    balance: number;
     currency: Currency | "";
     type: AccountType | "";
 };
 
 export default function CreateAccountFormTrigger() {
-    const { data, setData, post, errors, reset } = useForm<Required<CreateAccountForm>>({
+    const { data, setData, post, errors, reset, processing } = useForm<Required<CreateAccountForm>>({
             name: "",
-            initial_balance: 0,
+            balance: 0,
             currency: "",
             type: "",
         });
     
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-
+        console.log("submitting");
         post(route("create-account"), {
-            onFinish: () => {
+            onSuccess: () => {
                 reset();
                 toast("Account created", {
+                    closeButton: true,
                     position: "top-center",
                     description: `Successfully created new account ${data.name}.`
                 })
@@ -57,7 +58,7 @@ export default function CreateAccountFormTrigger() {
                             <Textarea
                                 id="sheet-demo-name"
                                 placeholder="Name"
-                                className="border-none shadow-none focus-visible:ring-0 text-2xl font-extrabold resize-none"
+                                className="border-none shadow-none focus-visible:ring-0 text-2xl font-extrabold resize-none dark:bg-input/0"
                                 autoFocus
                                 value={data.name}
                                 onChange={(e) => setData("name", e.target.value)}
@@ -70,11 +71,11 @@ export default function CreateAccountFormTrigger() {
                             <Input
                                 id="sheet-demo-name"
                                 type="number"
-                                value={data.initial_balance}
-                                onChange={(e) => setData("initial_balance",parseFloat(e.target.value))}
+                                value={data.balance}
+                                onChange={(e) => setData("balance",parseFloat(e.target.value))}
                                 required
                             />
-                            <InputError message={errors.initial_balance}/>
+                            <InputError message={errors.balance}/>
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="sheet-demo-name">Currency</Label>
@@ -114,9 +115,9 @@ export default function CreateAccountFormTrigger() {
                         </div>
                     </div>
                     <SheetFooter>
-                        <Button type="submit">Save</Button>
+                        <Button type="submit" disabled={processing}>Save</Button>
                         <SheetClose asChild>
-                            <Button variant="outline">Close</Button>
+                            <Button variant="outline" disabled={processing}>Close</Button>
                         </SheetClose>
                     </SheetFooter>
                 </form>

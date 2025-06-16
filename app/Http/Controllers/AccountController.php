@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateAccountRequest;
 use App\Http\Resources\AccountResource;
 use App\Models\Account;
 use Illuminate\Http\Request;
@@ -32,16 +33,17 @@ class AccountController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CreateAccountRequest $request)
     {
-        logger($request);
         Account::create([
             "name" => $request->name,
             "currency" => $request->currency,
             "type" => $request->type,
-            "balance" => $request->initial_balance,
+            "balance" => $request->balance,
             "user_id" => request()->user()->id,
         ]);
+
+        return redirect()->back();
     }
 
     /**
