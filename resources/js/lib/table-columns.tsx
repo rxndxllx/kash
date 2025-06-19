@@ -6,6 +6,7 @@ import { formatAmount } from "@/lib/utils";
 import { MoreHorizontal } from "lucide-react";
 import { type Account } from "@/types/models";
 import * as Flags from "country-flag-icons/react/3x2";
+import CreateAccountFormTrigger from "@/components/forms/create-account-form";
 
 export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
     {
@@ -44,24 +45,23 @@ export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
     },
     {
     id: "actions",
-    cell: () => {
+    cell: ({ row }) => {
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText("")}
-            >
-              Edit Account
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View Transactions</DropdownMenuItem>
-          </DropdownMenuContent>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                    {/* Edit Account */}
+                    <CreateAccountFormTrigger account={row.original}/>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>View Transactions</DropdownMenuItem>
+            </DropdownMenuContent>
         </DropdownMenu>
       )
     },

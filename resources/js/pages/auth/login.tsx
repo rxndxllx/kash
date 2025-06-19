@@ -1,14 +1,14 @@
-import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { Head, useForm } from "@inertiajs/react";
+import { LoaderCircle } from "lucide-react";
+import { FormEventHandler } from "react";
 
-import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AuthLayout from '@/layouts/auth-layout';
+import InputError from "@/components/input-error";
+import TextLink from "@/components/text-link";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import AuthLayout from "@/layouts/auth-layout";
 
 type LoginForm = {
     email: string;
@@ -23,15 +23,15 @@ interface LoginProps {
 
 export default function Login({ status, canResetPassword }: LoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
-        email: '',
-        password: '',
+        email: "",
+        password: "",
         remember: false,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('login'), {
-            onFinish: () => reset('password'),
+        post(route("login"), {
+            onFinish: () => reset("password"),
         });
     };
 
@@ -51,7 +51,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             tabIndex={1}
                             autoComplete="email"
                             value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
+                            onChange={(e) => setData("email", e.target.value)}
                             placeholder="email@example.com"
                         />
                         <InputError message={errors.email} />
@@ -61,7 +61,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <div className="flex items-center">
                             <Label htmlFor="password">Password</Label>
                             {canResetPassword && (
-                                <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
+                                <TextLink href={route("password.request")} className="ml-auto text-sm" tabIndex={5}>
                                     Forgot password?
                                 </TextLink>
                             )}
@@ -73,7 +73,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             tabIndex={2}
                             autoComplete="current-password"
                             value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
+                            onChange={(e) => setData("password", e.target.value)}
                             placeholder="Password"
                         />
                         <InputError message={errors.password} />
@@ -84,7 +84,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             id="remember"
                             name="remember"
                             checked={data.remember}
-                            onClick={() => setData('remember', !data.remember)}
+                            onClick={() => setData("remember", !data.remember)}
                             tabIndex={3}
                         />
                         <Label htmlFor="remember">Remember me</Label>
@@ -97,8 +97,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                 </div>
 
                 <div className="text-muted-foreground text-center text-sm">
-                    Don't have an account?{' '}
-                    <TextLink href={route('register')} tabIndex={5}>
+                    Don"t have an account?{" "}
+                    <TextLink href={route("register")} tabIndex={5}>
                         Sign up
                     </TextLink>
                 </div>

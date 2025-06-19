@@ -27,7 +27,10 @@ export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
-    ziggy: Config & { location: string };
+    ziggy: Config & {
+        location: string;
+        query: Record<string, string|[]>
+    };
     sidebarOpen: boolean;
     [key: string]: unknown;
 }
@@ -46,7 +49,8 @@ interface SelectTableFilter extends BaseTableFilter {
 }
 
 interface SearchBarTableFilter extends BaseTableFilter {
-    type: "searchBar"
+    type: "searchBar";
+    key: "search";
 }
 
 export type TableFilter = SearchBarTableFilter | SelectTableFilter;

@@ -12,6 +12,7 @@ import { toUpper, startCase } from "lodash";
 import { useForm } from "@inertiajs/react";
 import * as Flags from "country-flag-icons/react/3x2";
 import InputError from "@/components/input-error";
+import { Account } from "@/types/models";
 
 type CreateAccountForm = {
     name: string;
@@ -20,17 +21,17 @@ type CreateAccountForm = {
     type: AccountType | "";
 };
 
-export default function CreateAccountFormTrigger() {
+export default function CreateAccountFormTrigger({ account }: { account?: Account }) {
     const { data, setData, post, errors, reset, processing } = useForm<Required<CreateAccountForm>>({
-            name: "",
-            balance: 0,
-            currency: "",
-            type: "",
+            name: account?.name ?? "",
+            balance: account?.balance ?? 0,
+            currency: account?.currency ?? "",
+            type: account?.type ?? "",
         });
     
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        console.log("submitting");
+
         post(route("create-account"), {
             onSuccess: () => {
                 reset();
