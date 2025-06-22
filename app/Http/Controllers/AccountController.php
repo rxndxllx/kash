@@ -9,6 +9,7 @@ use App\Http\Requests\CreateAccountRequest;
 use App\Http\Resources\AccountResource;
 use App\Models\Account;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -61,7 +62,7 @@ class AccountController extends Controller
             "user_id" => $request->user()->id,
         ]);
 
-        return redirect()->back();
+        return to_route("accounts");
     }
 
     /**
@@ -83,9 +84,16 @@ class AccountController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Account $account): RedirectResponse
     {
-        //
+        $account->update([
+            "name" => $request->name,
+            "balance" => $request->balance,
+            "type" => $request->type,
+            "currency" => $request->currency,
+        ]);
+
+        return to_route("accounts");
     }
 
     /**

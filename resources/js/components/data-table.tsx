@@ -59,7 +59,7 @@ export default function DataTable<T>({ table, data, filters }: { table: ReactTab
                                 </TableCell>
                             </TableRow>
                         )}
-                        {table.getRowModel().rows?.length < 20 && (
+                        {table.getRowModel().rows?.length > 0 && table.getRowModel().rows.length < 20 && (
                             <TableRow>
                                 <TableCell colSpan={table.options.columns.length} className="h-24 text-center">
                                     No more rows to show.
