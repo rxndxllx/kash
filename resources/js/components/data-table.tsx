@@ -11,7 +11,7 @@ import { TableFilter } from "@/types";
 import { toUpper, isEmpty, isEqual } from "lodash";
 import { useState } from "react";
 
-export default function DataTable<T>({ table, data, filters }: { table: ReactTable<T>; data: Paginated<T>; filters: TableFilter[] }) {
+export default function DataTable<T>({ table, data, filters }: { table: ReactTable<T>; data: Paginated<T>; filters?: TableFilter[] }) {
     return (
         <>
             <div className="flex items-center py-2 justify-between">
@@ -81,10 +81,10 @@ export default function DataTable<T>({ table, data, filters }: { table: ReactTab
  * @todo
  * 1. Make this responsive
  */
-function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, filters: TableFilter[] }) {
+function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, filters?: TableFilter[] }) {
     const [isFiltering, setIsFiltering] = useState(false);
 
-    const defaultValues = filters.reduce<Record<string, string>>(
+    const defaultValues = filters?.reduce<Record<string, string>>(
         (acc, { key }) => ({ ...acc, [key]: "" }),
         { page: "1" }
     );
@@ -124,7 +124,7 @@ function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, 
     return (
         <>
             <div className="flex items-center justify-start space-x-2">
-                {filters.map((filter) => {
+                {filters?.map((filter) => {
                     if (filter.type === "searchBar") {
                         return <Input
                             key={filter.key}
@@ -161,12 +161,14 @@ function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, 
                         );
                     }
                 })}
-                <Button variant="ghost" size="icon" onClick={() => {
-                    reset();
-                    router.visit(window.location.pathname);
-                }}>
-                    <X/>
-                </Button>
+                { filters && (
+                    <Button variant="ghost" size="icon" onClick={() => {
+                        reset();
+                        router.visit(window.location.pathname);
+                    }}>
+                        <X/>
+                    </Button>
+                )}
             </div>
             {/*
                 @todo

@@ -3,7 +3,7 @@ import { NavUser } from "@/components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { type NavItem } from "@/types";
 import { Link } from "@inertiajs/react";
-import { LayoutGrid, BadgeDollarSign } from "lucide-react";
+import { LayoutGrid, BadgeDollarSign, Tag } from "lucide-react";
 import AppLogo from "@/components/app-logo";
 
 const mainNavItems: NavItem[] = [
@@ -16,6 +16,11 @@ const mainNavItems: NavItem[] = [
         title: "My Accounts",
         href: "/accounts",
         icon: BadgeDollarSign,
+    },
+    {
+        title: "Transactions",
+        href: "/transactions",
+        icon: Tag,
     }
 ];
 

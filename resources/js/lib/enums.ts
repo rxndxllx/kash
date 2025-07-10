@@ -9,3 +9,9 @@ export enum Currency {
     USD = "USD",
     PHP = "PHP",
 };
+
+export enum TransactionType {
+    INCOME = "income",
+    EXPENSE = "expense",
+    TRANSFER = "transfer",
+};

@@ -1,3 +1,4 @@
+import { Account } from "@/types/models";
 import { Button } from "@/components/ui/button";
 import { CircleFadingPlus } from "lucide-react";
 import { Currency, AccountType } from "@/lib/enums";
@@ -12,7 +13,6 @@ import { toUpper, startCase } from "lodash";
 import { useForm } from "@inertiajs/react";
 import * as Flags from "country-flag-icons/react/3x2";
 import InputError from "@/components/input-error";
-import { Account } from "@/types/models";
 
 type CreateAccountForm = {
     name: string;
@@ -21,7 +21,7 @@ type CreateAccountForm = {
     type: AccountType | "";
 };
 
-export default function CreateAccountFormTrigger({ account }: { account?: Account }) {
+export default function CreateAccountFormSheet({ account }: { account?: Account }) {
     const { data, setData, post, errors, reset, processing } = useForm<Required<CreateAccountForm>>({
             name: account?.name ?? "",
             balance: account?.balance ?? 0,

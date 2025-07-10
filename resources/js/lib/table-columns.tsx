@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { formatAmount } from "@/lib/utils";
 import { MoreHorizontal } from "lucide-react";
 import { SheetTrigger } from "@/components/ui/sheet";
-import { type Account } from "@/types/models";
+import { type Transaction, type Account } from "@/types/models";
 import * as Flags from "country-flag-icons/react/3x2";
 import EditAccountFormSheet from "@/components/forms/edit-account-form";
 
@@ -45,32 +45,88 @@ export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
         cell: ({ row }) => formatAmount(row.getValue("balance"), row.getValue("currency"))
     },
     {
-    id: "actions",
-    cell: ({ row }) => {
-      return (
-        <EditAccountFormSheet
-            account={row.original}
-            trigger={
-                <DropdownMenu modal={false}>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" aria-describedby="">
-                        <SheetTrigger asChild>
-                            <Button size="lg">
-                                Edit Account
-                            </Button>
-                        </SheetTrigger>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View Transactions</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            }
-        />
-      )
+        id: "actions",
+        cell: ({ row }) => {
+            return (
+                <EditAccountFormSheet
+                    account={row.original}
+                    trigger={
+                        <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" aria-describedby="">
+                                <SheetTrigger asChild>
+                                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                                </SheetTrigger>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>View Transactions</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    }
+                />
+            )
+        },
     },
-  },
+];
+
+export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
+    {
+        accessorKey: "type",
+        header: "Type",
+    },
+    {
+        accessorKey: "currency",
+        header: "Currency",
+        cell: ({ row }) => {
+            const _Flags: Record<string, Flags.FlagComponent> = Flags;
+            const countryCode = "PH";
+            const Flag = _Flags[countryCode]
+
+            return (
+                <div className="flex gap-2">
+                    <Flag className="w-5 rounded-sm"/>
+                    {row.getValue("currency")}
+                </div>
+            )
+        }
+    },
+    {
+        accessorKey: "amount",
+        header: "Amount",
+        // cell: ({ row }) => formatAmount(row.getValue("balance"), row.getValue("currency"))
+    },
+    {
+        id: "actions",
+        cell: () => {
+            return (
+                // <EditAccountFormSheet
+                //     account={row.original}
+                //     trigger={
+                //         <DropdownMenu modal={false}>
+                //             <DropdownMenuTrigger asChild>
+                //                 <Button variant="ghost" className="h-8 w-8 p-0">
+                //                     <span className="sr-only">Open menu</span>
+                //                     <MoreHorizontal className="h-4 w-4" />
+                //                 </Button>
+                //             </DropdownMenuTrigger>
+                //             <DropdownMenuContent align="end" aria-describedby="">
+                //                 <SheetTrigger asChild>
+                //                     <Button size="lg">
+                //                         Edit Account
+                //                     </Button>
+                //                 </SheetTrigger>
+                //                 <DropdownMenuSeparator />
+                //                 <DropdownMenuItem>View Transactions</DropdownMenuItem>
+                //             </DropdownMenuContent>
+                //         </DropdownMenu>
+                //     }
+                // />
+                <></>
+            )
+        },
+    },
 ];

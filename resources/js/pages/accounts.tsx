@@ -5,7 +5,7 @@ import { Head } from "@inertiajs/react";
 import { Paginated, type Account } from "@/types/models";
 import { type BreadcrumbItem } from "@/types";
 import AppLayout from "@/layouts/app-layout";
-import CreateAccountFormTrigger from "@/components/forms/create-account-form";
+import CreateAccountFormSheet from "@/components/forms/create-account-form";
 import DataTable from "@/components/data-table";
 import Heading from "@/components/heading";
 
@@ -33,7 +33,7 @@ export default function Accounts({ accounts }: AccountProps) {
             <div className="flex h-full flex-col gap-4 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                     <Heading title="My Accounts" description="View and manage all your linked accounts in one place" />
-                    <CreateAccountFormTrigger />
+                    <CreateAccountFormSheet />
                 </div>
                 <DataTable table={table} data={accounts} filters={ACCOUNTS_TABLE_FILTERS} />
             </div>

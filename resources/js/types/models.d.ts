@@ -1,4 +1,4 @@
-import { AccountType, Currency } from "@/lib/enums";
+import { AccountType, Currency, TransactionType } from "@/lib/enums";
 
 export interface User {
     id: number;
@@ -21,6 +21,14 @@ export interface Account {
     currency_country_code?: string;
     created_at: string;
     updated_at: string;
+}
+
+export interface Transaction {
+    id: number;
+    amount: number;
+    type: TransactionType;
+    note: string|null;
+    transacted_at: string;
 }
 
 interface Resource<T> {

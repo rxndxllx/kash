@@ -21,7 +21,7 @@ return new class extends Migration
             $table->double("amount");
             $table->string("type");
             $table->timestamp("transacted_at");
-            $table->string("note");
+            $table->string("note")->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

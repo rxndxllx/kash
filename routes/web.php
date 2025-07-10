@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -16,6 +17,9 @@ Route::middleware(["auth", "verified"])->group(function () {
     Route::get("accounts", [AccountController::class, "index"])->name("accounts");
     Route::post("accounts", [AccountController::class, "store"])->name("create-account");
     Route::put("accounts/{account:id}", [AccountController::class, "update"])->name("edit-account");
+
+    Route::get("transactions", [TransactionController::class, "index"])->name("transactions");
+    Route::post("transactions", [TransactionController::class, "store"])->name("create-transaction");
 });
 
 require __DIR__."/settings.php";
