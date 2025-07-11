@@ -1,3 +1,4 @@
+import { Account, Category } from "@/types/models";
 import { Button } from "@/components/ui/button";
 import { CircleFadingPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 import { TransactionType } from "@/lib/enums";
 import { useForm } from "@inertiajs/react";
 import InputError from "@/components/input-error";
+import SelectAccount from "@/components/select-account";
 
 type CreateTransactionForm = {
     note: string;
@@ -23,7 +25,7 @@ type CreateTransactionForm = {
     type: TransactionType;
 };
 
-export default function CreateTransactionFormSheet() {
+export default function CreateTransactionFormSheet({ accounts, categories }: { accounts: Account[]; categories: Category[] }) {
     const { data, setData, post, errors, reset, processing } = useForm<Required<CreateTransactionForm>>({
             note: "",
             transactedAt: "",
@@ -63,7 +65,7 @@ export default function CreateTransactionFormSheet() {
                         <div className="grid gap-3">
                             <Input
                                 id="sheet-amount"
-                                placeholder="Amount"
+                                placeholder="0"
                                 className={cn(
                                     isEqual(data.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600",
                                     "border-none shadow-none focus-visible:ring-0 text-4xl font-extrabold resize-none dark:bg-input/0 text-right")}
@@ -91,29 +93,19 @@ export default function CreateTransactionFormSheet() {
                                     <Label htmlFor="r2">Income</Label>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <RadioGroupItem value={TransactionType.TRANSFER} id="r2" />
-                                    <Label htmlFor="r2">Transfer</Label>
+                                    <RadioGroupItem value={TransactionType.TRANSFER} id="r3" />
+                                    <Label htmlFor="r3">Transfer</Label>
                                 </div>
                             </RadioGroup>
                             <InputError message={errors.type}/>
                         </div>
-                         {/* @todo create an AccountSelect component */}
                         <div className="grid gap-3">
                             <Label htmlFor="sheet-demo-name">Account</Label>
-                            <Select
+                            <SelectAccount
+                                accounts={accounts}
                                 value={data.accountId ?? undefined}
                                 onValueChange={(value) => setData("accountId", value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Account" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="1">
-                                        Account
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
+                            />
                             <InputError message={errors.accountId}/>
                         </div>
                         {/* @todo create a CategorySelect component */}
@@ -128,9 +120,12 @@ export default function CreateTransactionFormSheet() {
                                     <SelectValue placeholder="Select Category" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="1">
-                                        Category
-                                    </SelectItem>
+                                    {categories.map((category) => (
+                                        <SelectItem value={`${category.id}`} key={category.id}>
+                                            {category.title}
+                                        </SelectItem>
+                                    ))}
+                                    
                                 </SelectContent>
                             </Select>
                             <InputError message={errors.accountId}/>

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AccountResource;
 use App\Http\Resources\TransactionResource;
+use App\Models\Category;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,8 +15,12 @@ class TransactionController extends Controller
 {
     public function index()
     {
+        $user = request()->user();
+
         return Inertia::render("transactions", [
-            "transactions" => TransactionResource::collection(request()->user()->transactions()->paginate(20)),
+            "transactions" => TransactionResource::collection($user->transactions()->paginate(20)),
+            "accounts" => AccountResource::collection($user->accounts),
+            "categories" => Category::generic()->get()->merge($user->categories),
         ]);
     }
 

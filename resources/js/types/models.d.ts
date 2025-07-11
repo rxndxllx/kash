@@ -31,6 +31,11 @@ export interface Transaction {
     transacted_at: string;
 }
 
+export interface Category {
+    id: number;
+    title: string;
+}
+
 interface Resource<T> {
     data: T[];
 }
