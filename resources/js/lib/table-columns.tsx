@@ -1,10 +1,9 @@
 import { ACCOUNT_TYPE_ICON_MAP } from "@/lib/constants";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatAmount } from "@/lib/utils";
-import { isEqual, upperCase } from "lodash";
+import { isEqual } from "lodash";
 import { MoreHorizontal } from "lucide-react";
 import { SheetTrigger } from "@/components/ui/sheet";
 import { TransactionType } from "@/lib/enums";
@@ -78,6 +77,24 @@ export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
 
 export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
     {
+        accessorKey: "transacted_at",
+        header: "Date"
+    },
+     {
+        accessorKey: "account.type",
+        header: "Account",
+        cell: ({ row }) => {
+            const Icon = ACCOUNT_TYPE_ICON_MAP[row.original.account.type];
+
+            return (
+                <div className="flex gap-2">
+                    <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
+                    {row.original.account.name}
+                </div>
+            );
+        }
+    },
+    {
         accessorKey: "currency",
         header: "Currency",
         cell: ({ row }) => {
@@ -88,7 +105,7 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
             return (
                 <div className="flex gap-2">
                     <Flag className="w-5 rounded-sm"/>
-                    {row.getValue("currency")}
+                    {row.original.account.currency}
                 </div>
             )
         }
@@ -96,18 +113,21 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
     {
         accessorKey: "amount",
         header: "Amount",
-        // cell: ({ row }) => formatAmount(row.getValue("balance"), row.getValue("currency"))
+        cell: ({ row }) => (
+            <p className={
+                isEqual(row.original.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600"
+            }>
+                {formatAmount(row.getValue("amount"), row.original.account.currency)}
+            </p>
+        )
     },
     {
-        accessorKey: "type",
-        header: "Type",
-        cell: ({ row }) => <Badge
-            variant={isEqual(row.getValue("type"), TransactionType.EXPENSE)
-                ? "destructive"
-                : "default"}
-            >
-                {upperCase(row.getValue("type"))}
-            </Badge>
+        accessorKey: "category",
+        header: "Category",
+    },
+    {
+        accessorKey: "note",
+        header: "Note",
     },
     {
         id: "actions",

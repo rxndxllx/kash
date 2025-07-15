@@ -18,20 +18,20 @@ import SelectAccount from "@/components/select-account";
 
 type CreateTransactionForm = {
     note: string;
-    transactedAt: string;
+    transacted_at: string;
     amount: number;
-    accountId: string | null;
-    categoryId: string | null;
+    account_id: string;
+    category_id: string;
     type: TransactionType;
 };
 
 export default function CreateTransactionFormSheet({ accounts, categories }: { accounts: Account[]; categories: Category[] }) {
     const { data, setData, post, errors, reset, processing } = useForm<Required<CreateTransactionForm>>({
             note: "",
-            transactedAt: "",
+            transacted_at: "",
             amount: 0,
-            accountId: null,
-            categoryId: null,
+            account_id: "",
+            category_id: "",
             type: TransactionType.EXPENSE,
         });
     
@@ -64,7 +64,6 @@ export default function CreateTransactionFormSheet({ accounts, categories }: { a
                     <div className="grid flex-1 auto-rows-min gap-6 px-4">
                         <div className="grid gap-3">
                             <Input
-                                id="sheet-amount"
                                 placeholder="0"
                                 className={cn(
                                     isEqual(data.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600",
@@ -102,18 +101,19 @@ export default function CreateTransactionFormSheet({ accounts, categories }: { a
                         <div className="grid gap-3">
                             <Label htmlFor="sheet-demo-name">Account</Label>
                             <SelectAccount
+                                required
                                 accounts={accounts}
-                                value={data.accountId ?? undefined}
-                                onValueChange={(value) => setData("accountId", value)}
+                                value={data.account_id ?? undefined}
+                                onValueChange={(value) => setData("account_id", value)}
                             />
-                            <InputError message={errors.accountId}/>
+                            <InputError message={errors.account_id}/>
                         </div>
                         {/* @todo create a CategorySelect component */}
                         <div className="grid gap-3">
                             <Label htmlFor="sheet-demo-name">Category</Label>
                             <Select
-                                value={data.categoryId ?? undefined}
-                                onValueChange={(value) => setData("categoryId", value)}
+                                value={data.category_id ?? undefined}
+                                onValueChange={(value) => setData("category_id", value)}
                                 required
                             >
                                 <SelectTrigger>
@@ -128,12 +128,13 @@ export default function CreateTransactionFormSheet({ accounts, categories }: { a
                                     
                                 </SelectContent>
                             </Select>
-                            <InputError message={errors.accountId}/>
+                            <InputError message={errors.category_id}/>
                         </div>
                         <div className="grid gap-3">
                             <Label htmlFor="sheet-demo-name">Note</Label>
                             <Textarea
                                 id="sheet-demo-name"
+                                name="note"
                                 className="resize-none"
                                 value={data.note}
                                 onChange={(e) => setData("note", e.target.value)}

@@ -29,6 +29,8 @@ export interface Transaction {
     type: TransactionType;
     note: string|null;
     transacted_at: string;
+    account: Account;
+    category: string;
 }
 
 export interface Category {

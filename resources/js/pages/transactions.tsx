@@ -1,12 +1,13 @@
-import DataTable from "@/components/data-table";
-import CreateTransactionFormSheet from "@/components/forms/create-transaction-form";
-import Heading from "@/components/heading";
-import AppLayout from "@/layouts/app-layout";
-import { TRANSACTIONS_TABLE_COLUMNS } from "@/lib/table-columns";
-import { BreadcrumbItem } from "@/types";
 import { Account, Category, Paginated, Transaction } from "@/types/models";
-import { Head } from "@inertiajs/react";
+import { BreadcrumbItem } from "@/types";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { Head } from "@inertiajs/react";
+import { TRANSACTIONS_TABLE_COLUMNS } from "@/lib/table-columns";
+import { TRANSACTIONS_TABLE_FILTERS } from "@/lib/table-filters";
+import AppLayout from "@/layouts/app-layout";
+import CreateTransactionFormSheet from "@/components/forms/create-transaction-form";
+import DataTable from "@/components/data-table";
+import Heading from "@/components/heading";
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -34,7 +35,7 @@ export default function Transactions({
                     <Heading title="Transactions" description="View and manage all your transactions in one place" />
                     <CreateTransactionFormSheet accounts={accounts} categories={categories}/>
                 </div>
-                <DataTable table={table} data={transactions} />
+                <DataTable table={table} data={transactions} filters={TRANSACTIONS_TABLE_FILTERS}/>
             </div>
         </AppLayout>
     );

@@ -33,4 +33,14 @@ class Transaction extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
