@@ -5,25 +5,40 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTransactionRequest;
+use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\AccountResource;
 use App\Http\Resources\TransactionResource;
 use App\Models\Category;
 use App\Models\Transaction;
+use Illuminate\Database\Eloquent\Builder;
 use Inertia\Inertia;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(TransactionRequest $request)
     {
-        $user = request()->user();
+        $user = $request->user();
+        $filters = $request->safe();
+
+        $transactions = $user->transactions()
+            ->with(["account", "category"])
+            ->when(
+                $filters->account,
+                fn (Builder $q, string $account_id) => $q->whereAccountId($account_id)
+            )
+            ->when(
+                $filters->type,
+                fn (Builder $q, string $type) => $q->whereType($type)
+            )
+            ->when(
+                $filters->currency,
+                fn (Builder $q, string $currency) => $q->whereRelation("account", "currency", $currency)
+            )
+            ->orderByDesc("transacted_at")
+            ->paginate(20);
 
         return Inertia::render("transactions", [
-            "transactions" => TransactionResource::collection(
-                $user->transactions()
-                    ->with(["account", "category"])
-                    ->orderByDesc("transacted_at")
-                    ->paginate(20)
-            ),
+            "transactions" => TransactionResource::collection($transactions),
             "accounts" => AccountResource::collection($user->accounts),
             "categories" => Category::generic()->get()->merge($user->categories),
         ]);

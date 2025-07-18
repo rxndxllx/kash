@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatAmount } from "@/lib/utils";
 import { isEqual } from "lodash";
+import { Link } from "@inertiajs/react";
 import { MoreHorizontal } from "lucide-react";
 import { SheetTrigger } from "@/components/ui/sheet";
 import { TransactionType } from "@/lib/enums";
@@ -65,7 +66,11 @@ export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
                                     <DropdownMenuItem>Edit</DropdownMenuItem>
                                 </SheetTrigger>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>View Transactions</DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <Link href={`/transactions?account=${row.original.id}`}>
+                                        View Transactions
+                                    </Link>
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     }

@@ -1,28 +1,53 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Account } from "@/types/models";
+import { ACCOUNT_TYPE_ICON_MAP } from "@/lib/constants";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { SelectProps } from "@radix-ui/react-select";
-import * as Flags from "country-flag-icons/react/3x2";
+import { useEffect, useState } from "react";
 
-export default function SelectAccount({ accounts, value, onValueChange }: { accounts: Account[] } & SelectProps ) {
-    const _Flags: Record<string, Flags.FlagComponent> = Flags;
+export default function SelectAccount({ value, onValueChange, disabled }: SelectProps ) {
+    const [accounts, setAccounts] = useState<Account[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setLoading(true);
+
+        (async () => {
+            try {
+                const response = await fetch(route("data.accounts"));
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch accounts.");
+                }
+
+                const { data } = await response.json();
+                setAccounts(data);
+
+            } catch (e) {
+                console.error(e);
+            }
+
+        })();
+
+        setLoading(false);
+    }, []);
 
     return (
         <Select
             value={value}
             onValueChange={onValueChange}
             required
+            disabled={loading || disabled}
         >
             <SelectTrigger>
-                <SelectValue placeholder="Select Account" />
+                <SelectValue placeholder="Account" />
             </SelectTrigger>
             <SelectContent>
                 {accounts.map((account) => {
-                    const countryCode = (account.currency_country_code || "PH");
-                    const Flag = _Flags[countryCode];
+                    const Icon = ACCOUNT_TYPE_ICON_MAP[account.type];
 
                     return (
                         <SelectItem value={`${account.id}`} key={account.id}>
-                            <Flag className="w-5 rounded-sm"/>
+                            <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
                             {account.name}
                         </SelectItem>
                     )

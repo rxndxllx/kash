@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { LucideIcon } from "lucide-react";
 import { User } from "@types/models";
 import type { Config } from "ziggy-js";
@@ -37,11 +38,11 @@ export interface SharedData {
 
 export interface BaseTableFilter {
     key: string;
-    placeholder: string;
 }
 
 interface SelectTableFilter extends BaseTableFilter {
     type: "select";
+    placeholder: string;
     options: {
         title: string;
         value: string;
@@ -50,7 +51,13 @@ interface SelectTableFilter extends BaseTableFilter {
 
 interface SearchBarTableFilter extends BaseTableFilter {
     type: "searchBar";
+    placeholder: string;
     key: "search";
 }
 
-export type TableFilter = SearchBarTableFilter | SelectTableFilter;
+interface CustomTableFilter extends BaseTableFilter {
+    type: "custom";
+    component: (props: { isFiltering: boolean; value: string; handleApplyFilter: (key: string, value: string) => void }) => JSX.Element;
+}
+
+export type TableFilter = SearchBarTableFilter | SelectTableFilter | CustomTableFilter;

@@ -1,6 +1,7 @@
 import { AccountType, Currency, TransactionType } from "@/lib/enums";
 import { startCase, toUpper } from "lodash";
 import { TableFilter } from "@/types";
+import SelectAccount from "@/components/select-account";
 
 export const ACCOUNTS_TABLE_FILTERS: TableFilter[] = [
     {
@@ -29,6 +30,17 @@ export const ACCOUNTS_TABLE_FILTERS: TableFilter[] = [
 ];
 
 export const TRANSACTIONS_TABLE_FILTERS: TableFilter[] = [
+    {
+        type: "custom",
+        key: "account",
+        component: ({ value, isFiltering, handleApplyFilter }) => (
+            <SelectAccount
+                value={value}
+                onValueChange={(value) => handleApplyFilter("account", value)}
+                disabled={isFiltering}
+            />
+        ),
+    },
     {
         type: "select",
         key: "type",

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon, X } from "lucide-react";
 import { flexRender, Table as ReactTable } from "@tanstack/react-table";
+import { Fragment, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Paginated } from "@/types/models";
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
@@ -9,7 +10,6 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableFilter } from "@/types";
 import { toUpper, isEmpty, isEqual } from "lodash";
-import { useState } from "react";
 
 export default function DataTable<T>({ table, data, filters }: { table: ReactTable<T>; data: Paginated<T>; filters?: TableFilter[] }) {
     return (
@@ -84,8 +84,10 @@ export default function DataTable<T>({ table, data, filters }: { table: ReactTab
 function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, filters?: TableFilter[] }) {
     const [isFiltering, setIsFiltering] = useState(false);
 
+    const params = new URLSearchParams(window.location.search);
+
     const defaultValues = filters?.reduce<Record<string, string>>(
-        (acc, { key }) => ({ ...acc, [key]: "" }),
+        (acc, { key }) => ({ ...acc, [key]: params.get(key) ?? "" }),
         { page: "1" }
     );
 
@@ -159,6 +161,14 @@ function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, 
                                 </SelectContent>
                             </Select>
                         );
+                    }
+
+                    if (filter.type === "custom") {
+                        return (
+                            <Fragment key={filter.key}>
+                                {filter.component({ isFiltering, value: data[filter.key], handleApplyFilter })}
+                            </Fragment>
+                        )
                     }
                 })}
                 { filters && (
