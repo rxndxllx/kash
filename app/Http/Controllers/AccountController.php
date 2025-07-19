@@ -62,7 +62,7 @@ class AccountController extends Controller
             "user_id" => $request->user()->id,
         ]);
 
-        return to_route("accounts");
+        return back();
     }
 
     /**

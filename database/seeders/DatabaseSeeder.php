@@ -15,5 +15,9 @@ class DatabaseSeeder extends Seeder
         User::factory(3)
             ->has(Account::factory()->count(5), "accounts")
             ->create();
+
+        $this->call([
+            CategorySeeder::class,
+        ]);
     }
 }

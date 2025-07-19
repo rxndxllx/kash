@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\TransactionType;
 use App\Http\Requests\CreateTransactionRequest;
 use App\Http\Requests\TransactionRequest;
-use App\Http\Resources\AccountResource;
 use App\Http\Resources\TransactionResource;
 use App\Models\Category;
 use App\Models\Transaction;
@@ -39,7 +39,6 @@ class TransactionController extends Controller
 
         return Inertia::render("transactions", [
             "transactions" => TransactionResource::collection($transactions),
-            "accounts" => AccountResource::collection($user->accounts),
             "categories" => Category::generic()->get()->merge($user->categories),
         ]);
     }
@@ -51,6 +50,14 @@ class TransactionController extends Controller
      */
     public function store(CreateTransactionRequest $request)
     {
+        $account = $request->account;
+        $type = TransactionType::from($request->type);
+
+        if ($type === TransactionType::EXPENSE) {
+            $account->debit($request->amount);
+        } elseif ($type === TransactionType::INCOME) {
+            $account->credit($request->amount);
+        }
         Transaction::create([
             "user_id" => $request->user()->id,
             "account_id" => $request->account_id,
@@ -59,8 +66,9 @@ class TransactionController extends Controller
             "type" => $request->type,
             "transacted_at" => now(),
             "note" => $request->note,
+            "running_balance" => $account->balance,
         ]);
 
-        return to_route("transactions");
+        return back();
     }
 }

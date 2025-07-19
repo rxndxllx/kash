@@ -41,4 +41,16 @@ class Account extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function debit(float $amount): void
+    {
+        $this->balance -= $amount;
+        $this->save();
+    }
+
+    public function credit(float $amount): void
+    {
+        $this->balance += $amount;
+        $this->save();
+    }
 }

@@ -1,5 +1,5 @@
-import { Account, Category } from "@/types/models";
 import { Button } from "@/components/ui/button";
+import { Category } from "@/types/models";
 import { CircleFadingPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FormEventHandler } from "react";
@@ -25,7 +25,7 @@ type CreateTransactionForm = {
     type: TransactionType;
 };
 
-export default function CreateTransactionFormSheet({ accounts, categories }: { accounts: Account[]; categories: Category[] }) {
+export default function CreateTransactionFormSheet({ categories }: { categories: Category[] }) {
     const { data, setData, post, errors, reset, processing } = useForm<Required<CreateTransactionForm>>({
             note: "",
             transacted_at: "",
@@ -102,7 +102,6 @@ export default function CreateTransactionFormSheet({ accounts, categories }: { a
                             <Label htmlFor="sheet-demo-name">Account</Label>
                             <SelectAccount
                                 required
-                                accounts={accounts}
                                 value={data.account_id ?? undefined}
                                 onValueChange={(value) => setData("account_id", value)}
                             />

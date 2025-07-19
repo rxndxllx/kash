@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId("category_id")->constrained("categories");
             $table->double("amount");
             $table->string("type");
+            $table->double("running_balance");
             $table->timestamp("transacted_at");
             $table->string("note")->nullable();
             $table->timestamps();

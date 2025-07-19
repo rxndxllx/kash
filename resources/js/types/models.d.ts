@@ -31,6 +31,7 @@ export interface Transaction {
     transacted_at: string;
     account: Account;
     category: string;
+    running_balance: number;
 }
 
 export interface Category {

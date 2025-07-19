@@ -11,19 +11,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Transaction extends Model
 {
     protected $fillable = [
-        "user_id",
         "account_id",
-        "category_id",
         "amount",
-        "type",
-        "transacted_at",
+        "category_id",
         "note",
+        "running_balance",
+        "transacted_at",
+        "type",
+        "user_id",
     ];
 
     protected function casts(): array
     {
         return [
             "amount" => "float",
+            "running_balance" => "float",
             "type" => TransactionType::class,
             "transacted_at" => "datetime",
         ];

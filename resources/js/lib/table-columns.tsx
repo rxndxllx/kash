@@ -131,6 +131,11 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
         header: "Category",
     },
     {
+        accessorKey: "running_balance",
+        header: "Balance",
+        cell: ({ row }) => formatAmount(row.getValue("running_balance"), row.original.account.currency)
+    },
+    {
         accessorKey: "note",
         header: "Note",
     },

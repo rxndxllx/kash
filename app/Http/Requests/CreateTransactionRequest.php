@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Enums\TransactionType;
+use App\Models\Account;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -30,5 +31,10 @@ class CreateTransactionRequest extends FormRequest
             "transacted_at" => ["bail", "sometimes", "nullable", "date"],
             "note" => ["bail", "nullable", "string", "max:255"],
         ];
+    }
+
+    public function passedValidation(): void
+    {
+        $this->merge(["account" => Account::find($this->account_id)]);
     }
 }
