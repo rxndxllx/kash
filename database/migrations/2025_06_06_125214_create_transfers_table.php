@@ -13,14 +13,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create("categories", function (Blueprint $table) {
+        Schema::create("transfers", function (Blueprint $table) {
             $table->id();
-            $table->foreignId("parent_id")->nullable()->constrained("categories");
-            $table->foreignId("user_id")->nullable()->constrained("users");
-            $table->string("title");
-            $table->string("key");
+            $table->foreignId("from_account_id")->constrained("accounts");
+            $table->foreignId("to_account_id")->constrained("accounts");
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists("categories");
+        Schema::dropIfExists("transfers");
     }
 };

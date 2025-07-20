@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Category } from "@/types/models";
 import { CircleFadingPlus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, parseIntOrSelf } from "@/lib/utils";
 import { FormEventHandler } from "react";
 import { Input } from "@/components/ui/input";
 import { isEqual } from "lodash";
@@ -21,22 +21,36 @@ type CreateTransactionForm = {
     transacted_at: string;
     amount: number;
     account_id: string;
+    from_account_id: string;
+    to_account_id: string;
+    transfer_fee: number;
     category_id: string;
     type: TransactionType;
 };
 
 export default function CreateTransactionFormSheet({ categories }: { categories: Category[] }) {
-    const { data, setData, post, errors, reset, processing } = useForm<Required<CreateTransactionForm>>({
+    const { data, setData, post, errors, reset, processing, transform } = useForm<Required<CreateTransactionForm>>({
             note: "",
             transacted_at: "",
             amount: 0,
             account_id: "",
+            from_account_id: "",
+            to_account_id: "",
             category_id: "",
+            transfer_fee: 0,
             type: TransactionType.EXPENSE,
         });
     
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        transform((data) => ({
+            ...data,
+            account_id: parseIntOrSelf(data.account_id),
+            category_id: parseIntOrSelf(data.category_id),
+            from_account_id: parseIntOrSelf(data.from_account_id),
+            to_account_id: parseIntOrSelf(data.to_account_id),
+        }));
 
         post(route("create-transaction"), {
             onSuccess: () => {
@@ -45,7 +59,7 @@ export default function CreateTransactionFormSheet({ categories }: { categories:
                     closeButton: true,
                     position: "top-center",
                     description: `Successfully created a new transaction.`
-                })
+                });
             },
         });
     };
@@ -79,7 +93,7 @@ export default function CreateTransactionFormSheet({ categories }: { categories:
                         <div className="grid gap-3">
                             <Label htmlFor="sheet-demo-name">Type</Label>
                             <RadioGroup
-                                defaultValue={TransactionType.EXPENSE}
+                                value={data.type}
                                 className="flex"
                                 onValueChange={(value) => setData("type", value as TransactionType)}
                             >
@@ -98,37 +112,76 @@ export default function CreateTransactionFormSheet({ categories }: { categories:
                             </RadioGroup>
                             <InputError message={errors.type}/>
                         </div>
-                        <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Account</Label>
-                            <SelectAccount
-                                required
-                                value={data.account_id ?? undefined}
-                                onValueChange={(value) => setData("account_id", value)}
-                            />
-                            <InputError message={errors.account_id}/>
-                        </div>
+                        {
+                            isEqual(data.type, TransactionType.TRANSFER)
+                            ? (
+                                <>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="sheet-demo-name">Origin Account</Label>
+                                        <SelectAccount
+                                            required
+                                            value={data.from_account_id}
+                                            onValueChange={(value) => setData("from_account_id", value)}
+                                        />
+                                        <InputError message={errors.from_account_id}/>
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="sheet-demo-name">To Account</Label>
+                                        <SelectAccount
+                                            required
+                                            value={data.to_account_id}
+                                            onValueChange={(value) => setData("to_account_id", value)}
+                                        />
+                                        <InputError message={errors.to_account_id}/>
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="sheet-demo-name">Transfer Fee</Label>
+                                        <Input
+                                            placeholder="0"
+                                            value={data.transfer_fee}
+                                            onChange={(e) => setData("transfer_fee", parseFloat(e.target.value))}
+                                            required
+                                            type="number"
+                                        />
+                                        <InputError message={errors.transfer_fee}/>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="sheet-demo-name">Account</Label>
+                                        <SelectAccount
+                                            required
+                                            value={data.account_id ?? undefined}
+                                            onValueChange={(value) => setData("account_id", value)}
+                                        />
+                                        <InputError message={errors.account_id}/>
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="sheet-demo-name">Category</Label>
+                                        <Select
+                                            value={data.category_id ?? undefined}
+                                            onValueChange={(value) => setData("category_id", value)}
+                                            required
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {categories.map((category) => (
+                                                    <SelectItem value={`${category.id}`} key={category.id}>
+                                                        {category.title}
+                                                    </SelectItem>
+                                                ))}
+                                                
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={errors.category_id}/>
+                                    </div>
+                                </>   
+                            )
+                        }
                         {/* @todo create a CategorySelect component */}
-                        <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Category</Label>
-                            <Select
-                                value={data.category_id ?? undefined}
-                                onValueChange={(value) => setData("category_id", value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {categories.map((category) => (
-                                        <SelectItem value={`${category.id}`} key={category.id}>
-                                            {category.title}
-                                        </SelectItem>
-                                    ))}
-                                    
-                                </SelectContent>
-                            </Select>
-                            <InputError message={errors.category_id}/>
-                        </div>
                         <div className="grid gap-3">
                             <Label htmlFor="sheet-demo-name">Note</Label>
                             <Textarea

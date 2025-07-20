@@ -6,11 +6,16 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
     public function run(): void
     {
+        /**
+         * @todo
+         * 1. Clean up and select only relevant categories
+         */
         $categories = collect([
             "Salary",
             "Bonus",
@@ -102,10 +107,13 @@ class CategorySeeder extends Seeder
             "Currency Exchange",
             "Unknown Transactions",
             "Uncategorized",
+
+            "Transfer Fee",
         ]);
 
         $categories->each(fn (string $category) => Category::updateOrCreate([
             "title" => $category,
+            "key" => Str::slug($category, "_"),
         ]));
     }
 }

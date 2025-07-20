@@ -19,6 +19,7 @@ class Transaction extends Model
         "transacted_at",
         "type",
         "user_id",
+        "transfer_id",
     ];
 
     protected function casts(): array
@@ -44,5 +45,20 @@ class Transaction extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function transferDetails(): BelongsTo
+    {
+        return $this->belongsTo(Transfer::class, "transfer_id", "id");
+    }
+
+    public function isTransferDebit(): bool
+    {
+        return $this->type === TransactionType::TRANSFER && $this->transferDetails->from_account_id === $this->id;
+    }
+
+    public function isTransferCredit(): bool
+    {
+        return $this->type === TransactionType::TRANSFER && !$this->isTransferDebit();
     }
 }

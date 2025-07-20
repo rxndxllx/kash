@@ -1,6 +1,7 @@
 import { Account } from "@/types/models";
 import { Button } from "@/components/ui/button";
 import { CircleFadingPlus } from "lucide-react";
+import { CURRENCY_COUNTRY_CODE_MAP } from "@/lib/constants";
 import { Currency, AccountType } from "@/lib/enums";
 import { FormEventHandler } from "react";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { toUpper, startCase } from "lodash";
 import { useForm } from "@inertiajs/react";
-import * as Flags from "country-flag-icons/react/3x2";
+import Flag from "@/components/flag";
 import InputError from "@/components/input-error";
 
 type CreateAccountForm = {
@@ -91,7 +92,7 @@ export default function CreateAccountFormSheet({ account }: { account?: Account 
                                 <SelectContent>
                                     {Object.values(Currency).map((currency) =>
                                         <SelectItem value={currency} key={currency}>
-                                            <Flags.PH className="w-5 rounded-sm"/>
+                                            <Flag countryCode={CURRENCY_COUNTRY_CODE_MAP[currency]} />
                                             {toUpper(currency)}
                                         </SelectItem>)}
                                 </SelectContent>

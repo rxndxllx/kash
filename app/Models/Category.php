@@ -17,6 +17,7 @@ class Category extends Model
         "user_id",
         "parent_id",
         "title",
+        "key",
     ];
 
     public function user(): BelongsTo
@@ -27,6 +28,14 @@ class Category extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class);
+    }
+
+    /**
+     * Category of auto-generated transfer fee for transfer transactions
+     */
+    public static function transferFee(): self
+    {
+        return self::where("key", "transfer_fee")->first();
     }
 
     #[Scope]

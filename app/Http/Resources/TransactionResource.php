@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Enums\TransactionType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,8 +24,12 @@ class TransactionResource extends JsonResource
             "transacted_at" => $this->transacted_at->format("Y-m-d H:i:s"),
             "note" => $this->note,
             "account" => new AccountResource($this->account),
-            "category" => $this->category->title,
+            "category" => $this->category?->title,
             "running_balance" => $this->running_balance,
+            $this->mergeWhen(
+                $this->type === TransactionType::TRANSFER,
+                ["transfer_details" => new TransferResource($this->transferDetails)]
+            ),
         ];
     }
 }

@@ -18,7 +18,7 @@ export interface Account {
     type: AccountType;
     balance: number;
     currency: Currency;
-    currency_country_code?: string;
+    currency_country_code: string;
     created_at: string;
     updated_at: string;
 }
@@ -32,6 +32,13 @@ export interface Transaction {
     account: Account;
     category: string;
     running_balance: number;
+    transfer_details?: Transfer;
+}
+
+export interface Transfer {
+    id: number;
+    from_account: Account;
+    to_account: Account;
 }
 
 export interface Category {

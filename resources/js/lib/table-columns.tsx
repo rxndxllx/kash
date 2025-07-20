@@ -2,15 +2,15 @@ import { ACCOUNT_TYPE_ICON_MAP } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { formatAmount } from "@/lib/utils";
+import { formatAmount, formatDateToFriendly } from "@/lib/utils";
 import { isEqual } from "lodash";
 import { Link } from "@inertiajs/react";
 import { MoreHorizontal } from "lucide-react";
 import { SheetTrigger } from "@/components/ui/sheet";
 import { TransactionType } from "@/lib/enums";
 import { type Transaction, type Account } from "@/types/models";
-import * as Flags from "country-flag-icons/react/3x2";
 import EditAccountFormSheet from "@/components/forms/edit-account-form";
+import Flag from "@/components/flag";
 
 export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
     {
@@ -30,13 +30,9 @@ export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
         accessorKey: "currency",
         header: "Currency",
         cell: ({ row }) => {
-            const _Flags: Record<string, Flags.FlagComponent> = Flags;
-            const countryCode = (row.original.currency_country_code || "PH");
-            const Flag = _Flags[countryCode]
-
             return (
                 <div className="flex gap-2">
-                    <Flag className="w-5 rounded-sm"/>
+                    <Flag countryCode={row.original.currency_country_code }/>
                     {row.getValue("currency")}
                 </div>
             )
@@ -83,13 +79,31 @@ export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
 export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
     {
         accessorKey: "transacted_at",
-        header: "Date"
+        header: "Date",
+        cell: ({ row }) => formatDateToFriendly(row.getValue("transacted_at"))
     },
      {
-        accessorKey: "account.type",
+        accessorKey: "account",
         header: "Account",
         cell: ({ row }) => {
             const Icon = ACCOUNT_TYPE_ICON_MAP[row.original.account.type];
+
+            if (row.original.transfer_details) {
+                const transferDetails = row.original.transfer_details;
+                const isFrom = isEqual(row.original.account.id, transferDetails.from_account.id);
+
+                return (
+                     <div className="flex gap-2">
+                        <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
+                        {row.original.account.name}{" "}
+                        {
+                            isFrom
+                                ? `→ ${transferDetails.to_account.name}`
+                                : `← ${transferDetails.from_account.name}`
+                        }
+                    </div>
+                )
+            }
 
             return (
                 <div className="flex gap-2">
@@ -103,13 +117,9 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
         accessorKey: "currency",
         header: "Currency",
         cell: ({ row }) => {
-            const _Flags: Record<string, Flags.FlagComponent> = Flags;
-            const countryCode = "PH";
-            const Flag = _Flags[countryCode]
-
             return (
                 <div className="flex gap-2">
-                    <Flag className="w-5 rounded-sm"/>
+                    <Flag countryCode={row.original.account.currency_country_code}/>
                     {row.original.account.currency}
                 </div>
             )
@@ -118,13 +128,21 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
     {
         accessorKey: "amount",
         header: "Amount",
-        cell: ({ row }) => (
-            <p className={
-                isEqual(row.original.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600"
-            }>
-                {formatAmount(row.getValue("amount"), row.original.account.currency)}
-            </p>
-        )
+        cell: ({ row }) => {
+            const textColor = isEqual(row.original.type, TransactionType.EXPENSE)
+                ? "text-red-600"
+                : isEqual(row.original.type, TransactionType.INCOME)
+                    ? "text-green-600"
+                    : "";
+
+             const isDebit = isEqual(row.original.type, TransactionType.EXPENSE)
+                || isEqual(row.original.account.id, row.original.transfer_details?.from_account.id);
+
+            return (
+                <p className={textColor}>
+                    {isDebit ? "-" : "+"}{formatAmount(row.getValue("amount"), row.original.account.currency)}
+                </p>
+        )}
     },
     {
         accessorKey: "category",
