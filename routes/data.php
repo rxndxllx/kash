@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Data\DataAccountController;
+use App\Http\Controllers\Data\DataCategoryController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -11,4 +12,5 @@ use Illuminate\Support\Facades\Route;
  */
 Route::middleware("auth")->prefix("data")->group(function () {
     Route::get("accounts", [DataAccountController::class, "index"])->name("data.accounts");
+    Route::get("categories", [DataCategoryController::class, "index"])->name("data.categories");
 });

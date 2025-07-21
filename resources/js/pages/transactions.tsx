@@ -1,7 +1,7 @@
 import { BreadcrumbItem } from "@/types";
-import { Category, Paginated, Transaction } from "@/types/models";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Head } from "@inertiajs/react";
+import { Paginated, Transaction } from "@/types/models";
 import { TRANSACTIONS_TABLE_COLUMNS } from "@/lib/table-columns";
 import { TRANSACTIONS_TABLE_FILTERS } from "@/lib/table-filters";
 import AppLayout from "@/layouts/app-layout";
@@ -16,10 +16,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Transactions({
-    transactions,
-    categories,
-}: { transactions: Paginated<Transaction>; categories: Category[] }) {
+export default function Transactions({ transactions }: { transactions: Paginated<Transaction> }) {
     const table = useReactTable<Transaction>({
         data: transactions.data,
         columns: TRANSACTIONS_TABLE_COLUMNS,
@@ -32,7 +29,7 @@ export default function Transactions({
             <div className="flex h-full flex-col gap-4 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                     <Heading title="Transactions" description="View and manage all your transactions in one place" />
-                    <CreateTransactionFormSheet categories={categories}/>
+                    <CreateTransactionFormSheet />
                 </div>
                 <DataTable table={table} data={transactions} filters={TRANSACTIONS_TABLE_FILTERS}/>
             </div>

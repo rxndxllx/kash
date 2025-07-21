@@ -27,9 +27,10 @@ class TransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "account" => ["sometimes", "exists:accounts,id"],
+            "account" => ["sometimes", "string", "max:50"],
             "type" => ["sometimes", Rule::enum(TransactionType::class)],
             "currency" => ["sometimes", Rule::enum(Currency::class)],
+            "category" => ["sometimes", "string", "max:50"],
         ];
     }
 }

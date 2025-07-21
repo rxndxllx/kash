@@ -113,7 +113,7 @@ class CategorySeeder extends Seeder
 
         $categories->each(fn (string $category) => Category::updateOrCreate([
             "title" => $category,
-            "key" => Str::slug($category, "_"),
+            // "key" => Str::slug($category, "_"),
         ]));
     }
 }

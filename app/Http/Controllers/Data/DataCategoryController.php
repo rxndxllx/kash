@@ -6,18 +6,19 @@ namespace App\Http\Controllers\Data;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateAccountRequest;
-use App\Http\Resources\AccountResource;
+use App\Http\Resources\CategoryResource;
 use App\Models\Account;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
-class DataAccountController extends Controller
+class DataCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        return AccountResource::collection($request->user()->accounts);
+        return CategoryResource::collection(Category::generic()->get()->merge($request->user()->categories));
     }
 
     /**

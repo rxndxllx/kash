@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Category } from "@/types/models";
 import { CircleFadingPlus } from "lucide-react";
 import { cn, parseIntOrSelf } from "@/lib/utils";
 import { FormEventHandler } from "react";
@@ -7,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { isEqual } from "lodash";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -15,6 +13,7 @@ import { TransactionType } from "@/lib/enums";
 import { useForm } from "@inertiajs/react";
 import InputError from "@/components/input-error";
 import SelectAccount from "@/components/select-account";
+import SelectCategory from "@/components/select-category";
 
 type CreateTransactionForm = {
     note: string;
@@ -28,7 +27,7 @@ type CreateTransactionForm = {
     type: TransactionType;
 };
 
-export default function CreateTransactionFormSheet({ categories }: { categories: Category[] }) {
+export default function CreateTransactionFormSheet() {
     const { data, setData, post, errors, reset, processing, transform } = useForm<Required<CreateTransactionForm>>({
             note: "",
             transacted_at: "",
@@ -152,30 +151,18 @@ export default function CreateTransactionFormSheet({ categories }: { categories:
                                         <Label htmlFor="sheet-demo-name">Account</Label>
                                         <SelectAccount
                                             required
-                                            value={data.account_id ?? undefined}
+                                            value={data.account_id}
                                             onValueChange={(value) => setData("account_id", value)}
                                         />
                                         <InputError message={errors.account_id}/>
                                     </div>
                                     <div className="grid gap-3">
                                         <Label htmlFor="sheet-demo-name">Category</Label>
-                                        <Select
-                                            value={data.category_id ?? undefined}
-                                            onValueChange={(value) => setData("category_id", value)}
+                                        <SelectCategory
                                             required
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select Category" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {categories.map((category) => (
-                                                    <SelectItem value={`${category.id}`} key={category.id}>
-                                                        {category.title}
-                                                    </SelectItem>
-                                                ))}
-                                                
-                                            </SelectContent>
-                                        </Select>
+                                            value={data.category_id}
+                                            onValueChange={(value) => setData("category_id", value)}
+                                        />
                                         <InputError message={errors.category_id}/>
                                     </div>
                                 </>   

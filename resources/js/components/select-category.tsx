@@ -1,11 +1,10 @@
-import { Account } from "@/types/models";
-import { ACCOUNT_TYPE_ICON_MAP } from "@/lib/constants";
+import { Category } from "@/types/models";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { SelectProps } from "@radix-ui/react-select";
 import { useEffect, useState } from "react";
 
-export default function SelectAccount({ value, onValueChange, disabled, readableValue = false }: SelectProps & { readableValue?: boolean }) {
-    const [accounts, setAccounts] = useState<Account[]>([]);
+export default function SelectCategory({ value, onValueChange, disabled, readableValue = false }: SelectProps & { readableValue?: boolean }) {
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -13,14 +12,14 @@ export default function SelectAccount({ value, onValueChange, disabled, readable
 
         (async () => {
             try {
-                const response = await fetch(route("data.accounts"));
+                const response = await fetch(route("data.categories"));
 
                 if (!response.ok) {
-                    throw new Error("Failed to fetch accounts.");
+                    throw new Error("Failed to fetch categories.");
                 }
 
                 const data = await response.json();
-                setAccounts(data);
+                setCategories(data);
 
             } catch (e) {
                 console.error(e);
@@ -39,16 +38,13 @@ export default function SelectAccount({ value, onValueChange, disabled, readable
             disabled={loading || disabled}
         >
             <SelectTrigger>
-                <SelectValue placeholder="Account" />
+                <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-                {accounts.map((account) => {
-                    const Icon = ACCOUNT_TYPE_ICON_MAP[account.type];
-
+                {categories.map((category) => {
                     return (
-                        <SelectItem value={readableValue ? account.name : account.id.toString()} key={account.id}>
-                            <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
-                            {account.name}
+                        <SelectItem value={readableValue ? category.title : category.id.toString()} key={category.id}>
+                            {category.title}
                         </SelectItem>
                     )
                 })}

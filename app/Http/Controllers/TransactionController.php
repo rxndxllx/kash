@@ -8,7 +8,6 @@ use App\Enums\TransactionType;
 use App\Http\Requests\CreateTransactionRequest;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
-use App\Models\Category;
 use App\Services\TransactionService;
 use Illuminate\Database\Eloquent\Builder;
 use Inertia\Inertia;
@@ -31,7 +30,7 @@ class TransactionController extends Controller
             ->with(["account", "category", "transferDetails.fromAccount", "transferDetails.toAccount"])
             ->when(
                 $filters->account,
-                fn (Builder $q, string $account_id) => $q->whereAccountId($account_id)
+                fn (Builder $q, string $account) => $q->whereRelation("account", "name", $account)
             )
             ->when(
                 $filters->type,
@@ -41,13 +40,16 @@ class TransactionController extends Controller
                 $filters->currency,
                 fn (Builder $q, string $currency) => $q->whereRelation("account", "currency", $currency)
             )
+            ->when(
+                $filters->category,
+                fn (Builder $q, string $category) => $q->whereRelation("category", "title", $category)
+            )
             ->orderByDesc("transacted_at")
             ->orderByDesc("id")
             ->paginate(20);
 
         return Inertia::render("transactions", [
             "transactions" => TransactionResource::collection($transactions),
-            "categories" => Category::generic()->get()->merge($user->categories),
         ]);
     }
 

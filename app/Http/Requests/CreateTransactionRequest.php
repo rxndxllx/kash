@@ -34,7 +34,6 @@ class CreateTransactionRequest extends FormRequest
             "category_id" => [
                 "bail",
                 "required_unless:type,".TransactionType::TRANSFER->value,
-                "numeric",
                 "nullable",
                 "exists:categories,id",
             ],
