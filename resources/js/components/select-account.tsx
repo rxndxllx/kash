@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { SelectProps } from "@radix-ui/react-select";
 import { useEffect, useState } from "react";
 
-export default function SelectAccount({ value, onValueChange, disabled, readableValue = false }: SelectProps & { readableValue?: boolean }) {
+export default function SelectAccount({ value, onValueChange, disabled, className, readableValue = false, ...props }: SelectProps & { readableValue?: boolean, className?: string }) {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -37,8 +37,9 @@ export default function SelectAccount({ value, onValueChange, disabled, readable
             onValueChange={onValueChange}
             required
             disabled={loading || disabled}
+            {...props}
         >
-            <SelectTrigger>
+            <SelectTrigger className={className}>
                 <SelectValue placeholder="Account" />
             </SelectTrigger>
             <SelectContent>
@@ -46,9 +47,14 @@ export default function SelectAccount({ value, onValueChange, disabled, readable
                     const Icon = ACCOUNT_TYPE_ICON_MAP[account.type];
 
                     return (
-                        <SelectItem value={readableValue ? account.name : account.id.toString()} key={account.id}>
+                        <SelectItem
+                            value={readableValue ? account.name : account.id.toString()}
+                            key={account.id}
+                        >
                             <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
-                            {account.name}
+                            <p className="ml-0.5">{account.name}
+                                <span className="ml-2 text-muted-foreground text-xs">{account.currency}</span>
+                            </p>
                         </SelectItem>
                     )
                 })}

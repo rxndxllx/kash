@@ -1,8 +1,9 @@
-import { AccountType, Currency, TransactionType } from "@/lib/enums";
-import { startCase, toUpper } from "lodash";
+import { AccountType, TransactionType } from "@/lib/enums";
+import { startCase } from "lodash";
 import { TableFilter } from "@/types";
 import SelectAccount from "@/components/select-account";
 import SelectCategory from "@/components/select-category";
+import SelectCurrency from "@/components/select-currency";
 
 export const ACCOUNTS_TABLE_FILTERS: TableFilter[] = [
     {
@@ -11,13 +12,15 @@ export const ACCOUNTS_TABLE_FILTERS: TableFilter[] = [
         placeholder: "Search"
     },
     {
-        type: "select",
+        type: "custom",
         key: "currency",
-        options: Object.values(Currency).map((currency) => ({
-            title: toUpper(currency),
-            value: currency,
-        })),
-        placeholder: "Currency"
+        component: ({ value, isFiltering, handleApplyFilter }) => (
+            <SelectCurrency
+                value={value}
+                disabled={isFiltering}
+                onValueChange={(value) => handleApplyFilter("currency", value)}
+            />
+        )
     },
     {
         type: "select",
@@ -40,6 +43,7 @@ export const TRANSACTIONS_TABLE_FILTERS: TableFilter[] = [
                 onValueChange={(value) => handleApplyFilter("account", value)}
                 disabled={isFiltering}
                 readableValue
+                className="w-[200px] truncate"
             />
         ),
     },
@@ -47,19 +51,21 @@ export const TRANSACTIONS_TABLE_FILTERS: TableFilter[] = [
         type: "select",
         key: "type",
         options: Object.values(TransactionType).map((type) => ({
-            title: toUpper(type),
+            title: startCase(type),
             value: type,
         })),
         placeholder: "Type"
     },
     {
-        type: "select",
+        type: "custom",
         key: "currency",
-        options: Object.values(Currency).map((currency) => ({
-            title: toUpper(currency),
-            value: currency,
-        })),
-        placeholder: "Currency"
+        component: ({ value, isFiltering, handleApplyFilter }) => (
+            <SelectCurrency
+                value={value}
+                disabled={isFiltering}
+                onValueChange={(value) => handleApplyFilter("currency", value)}
+            />
+        )
     },
     {
         type: "custom",
@@ -70,6 +76,7 @@ export const TRANSACTIONS_TABLE_FILTERS: TableFilter[] = [
                 onValueChange={(value) => handleApplyFilter("category", value)}
                 disabled={isFiltering}
                 readableValue
+                className="w-[200px] truncate"
             />
         )
     },

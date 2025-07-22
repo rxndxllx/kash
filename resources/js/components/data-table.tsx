@@ -3,13 +3,13 @@ import { ChevronLeftIcon, ChevronRightIcon, X } from "lucide-react";
 import { flexRender, Table as ReactTable } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { isEmpty, isEqual } from "lodash";
 import { Paginated } from "@/types/models";
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { router, useForm } from "@inertiajs/react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableFilter } from "@/types";
-import { toUpper, isEmpty, isEqual } from "lodash";
 
 export default function DataTable<T>({ table, data, filters }: { table: ReactTable<T>; data: Paginated<T>; filters?: TableFilter[] }) {
     return (
@@ -155,7 +155,7 @@ function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, 
                                             value={option.value}
                                             key={option.value}
                                         >
-                                            {toUpper(option.title)}
+                                            {option.title}
                                         </SelectItem>
                                     )}
                                 </SelectContent>

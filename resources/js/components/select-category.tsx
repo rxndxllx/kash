@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { SelectProps } from "@radix-ui/react-select";
 import { useEffect, useState } from "react";
 
-export default function SelectCategory({ value, onValueChange, disabled, readableValue = false }: SelectProps & { readableValue?: boolean }) {
+export default function SelectCategory({ value, onValueChange, disabled, className, readableValue = false }: SelectProps & { readableValue?: boolean; className?: string }) {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -37,7 +37,7 @@ export default function SelectCategory({ value, onValueChange, disabled, readabl
             required
             disabled={loading || disabled}
         >
-            <SelectTrigger>
+            <SelectTrigger className={className}>
                 <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>

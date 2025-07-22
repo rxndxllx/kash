@@ -93,7 +93,7 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
                 const isFrom = isEqual(row.original.account.id, transferDetails.from_account.id);
 
                 return (
-                     <div className="flex gap-2">
+                     <div className="flex gap-2 items-center">
                         <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
                         {row.original.account.name}{" "}
                         {
@@ -106,9 +106,9 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
             }
 
             return (
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                     <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
-                    {row.original.account.name}
+                    <span>{row.original.account.name}</span>
                 </div>
             );
         }
