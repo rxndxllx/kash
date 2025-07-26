@@ -30,7 +30,7 @@ export interface Transaction {
     note: string|null;
     transacted_at: string;
     account: Account;
-    category: string;
+    category: Category;
     running_balance: number;
     transfer_details?: Transfer;
 }
@@ -39,6 +39,7 @@ export interface Transfer {
     id: number;
     from_account: Account;
     to_account: Account;
+    transfer_fee: number | null;
 }
 
 export interface Category {

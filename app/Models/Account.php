@@ -18,7 +18,8 @@ class Account extends Model
     protected $fillable = [
         "name",
         "type",
-        "balance",
+        "current_balance",
+        "initial_balance",
         "user_id",
         "currency",
     ];
@@ -28,7 +29,8 @@ class Account extends Model
         return [
             "type" => AccountType::class,
             "currency" => Currency::class,
-            "balance" => "float",
+            "current_balance" => "float",
+            "initial_balance" => "float",
         ];
     }
 
@@ -44,13 +46,13 @@ class Account extends Model
 
     public function debit(float $amount): void
     {
-        $this->balance -= $amount;
+        $this->current_balance -= $amount;
         $this->save();
     }
 
     public function credit(float $amount): void
     {
-        $this->balance += $amount;
+        $this->current_balance += $amount;
         $this->save();
     }
 }

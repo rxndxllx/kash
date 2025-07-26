@@ -58,7 +58,8 @@ class AccountController extends Controller
             "name" => $request->name,
             "currency" => $request->currency,
             "type" => $request->type,
-            "balance" => $request->balance,
+            "current_balance" => $request->balance,
+            "initial_balance" => $request->balance,
             "user_id" => $request->user()->id,
         ]);
 

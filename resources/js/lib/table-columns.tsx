@@ -10,6 +10,7 @@ import { SheetTrigger } from "@/components/ui/sheet";
 import { TransactionType } from "@/lib/enums";
 import { type Transaction, type Account } from "@/types/models";
 import EditAccountFormSheet from "@/components/forms/edit-account-form";
+import EditTransactionFormSheet from "@/components/forms/edit-transaction-form";
 import Flag from "@/components/flag";
 
 export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
@@ -63,7 +64,7 @@ export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
                                 </SheetTrigger>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/transactions?account=${row.original.id}`}>
+                                    <Link href={`/transactions?account=${row.original.name}`}>
                                         View Transactions
                                     </Link>
                                 </DropdownMenuItem>
@@ -145,12 +146,12 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
         )}
     },
     {
-        accessorKey: "category",
         header: "Category",
+        accessorFn: (row) => row.category?.title,
     },
     {
         accessorKey: "running_balance",
-        header: "Balance",
+        header: "Ending Balance",
         cell: ({ row }) => formatAmount(row.getValue("running_balance"), row.original.account.currency)
     },
     {
@@ -159,47 +160,26 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
     },
     {
         id: "actions",
-        cell: () => {
+        cell: ({ row }) => {
             return (
-                <DropdownMenu modal={false}>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" aria-describedby="">
-                        {/* <SheetTrigger asChild>
-                            <Button size="lg">
-                                Edit Account
-                            </Button>
-                        </SheetTrigger> */}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View Transactions</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-                // <EditAccountFormSheet
-                //     account={row.original}
-                //     trigger={
-                //         <DropdownMenu modal={false}>
-                //             <DropdownMenuTrigger asChild>
-                //                 <Button variant="ghost" className="h-8 w-8 p-0">
-                //                     <span className="sr-only">Open menu</span>
-                //                     <MoreHorizontal className="h-4 w-4" />
-                //                 </Button>
-                //             </DropdownMenuTrigger>
-                //             <DropdownMenuContent align="end" aria-describedby="">
-                //                 <SheetTrigger asChild>
-                //                     <Button size="lg">
-                //                         Edit Account
-                //                     </Button>
-                //                 </SheetTrigger>
-                //                 <DropdownMenuSeparator />
-                //                 <DropdownMenuItem>View Transactions</DropdownMenuItem>
-                //             </DropdownMenuContent>
-                //         </DropdownMenu>
-                //     }
-                // />
+                <EditTransactionFormSheet
+                    transaction={row.original}
+                    trigger={
+                        <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" aria-describedby="">
+                                <SheetTrigger asChild>
+                                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                                </SheetTrigger>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    }
+                />
             )
         },
     },

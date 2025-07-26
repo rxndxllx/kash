@@ -24,7 +24,7 @@ class TransactionResource extends JsonResource
             "transacted_at" => $this->transacted_at->format("Y-m-d H:i:s"),
             "note" => $this->note,
             "account" => new AccountResource($this->account),
-            "category" => $this->category?->title,
+            "category" => new CategoryResource($this->category),
             "running_balance" => $this->running_balance,
             $this->mergeWhen(
                 $this->type === TransactionType::TRANSFER,

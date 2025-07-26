@@ -67,7 +67,7 @@ export default function EditAccountFormSheet({ account, trigger }: { account: Ac
                             <InputError message={errors.name}/>
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Initial Balance</Label>
+                            <Label htmlFor="sheet-demo-name">Balance</Label>
                             <Input
                                 id="sheet-demo-name"
                                 type="number"

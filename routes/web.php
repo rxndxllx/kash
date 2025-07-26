@@ -20,6 +20,7 @@ Route::middleware(["auth", "verified"])->group(function () {
 
     Route::get("transactions", [TransactionController::class, "index"])->name("transactions");
     Route::post("transactions", [TransactionController::class, "store"])->name("create-transaction");
+    Route::put("transactions/{transaction:id}", [TransactionController::class, "update"])->name("edit-transaction");
 });
 
 require __DIR__."/settings.php";

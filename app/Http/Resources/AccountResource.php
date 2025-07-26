@@ -20,7 +20,7 @@ class AccountResource extends JsonResource
             "id" => $this->id,
             "type" => $this->type,
             "name" => $this->name,
-            "balance" => $this->balance,
+            "balance" => $this->current_balance,
             "currency" => $this->currency,
             "currency_country" => $this->currency->countryName(),
             "currency_country_code" => $this->currency->countryCode(),

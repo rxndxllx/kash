@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Transfer extends Model
 {
@@ -22,5 +23,25 @@ class Transfer extends Model
     public function toAccount(): BelongsTo
     {
         return $this->belongsTo(Account::class, "to_account_id", "id");
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function debitTransaction(): Transaction
+    {
+        return $this->transactions()->whereAccountId($this->from_account_id)->first();
+    }
+
+    public function creditTransaction(): Transaction
+    {
+        return $this->transactions()->whereAccountId($this->to_account_id)->first();
+    }
+
+    public function feeTransaction(): ?Transaction
+    {
+        return $this->transactions()->whereCategoryId(Category::transferFee()->id)->first();
     }
 }

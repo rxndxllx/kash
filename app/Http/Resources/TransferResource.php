@@ -20,6 +20,7 @@ class TransferResource extends JsonResource
             "id" => $this->id,
             "from_account" => new AccountResource($this->fromAccount),
             "to_account" => new AccountResource($this->toAccount),
+            "transfer_fee" => $this->feeTransaction()?->amount,
         ];
     }
 }

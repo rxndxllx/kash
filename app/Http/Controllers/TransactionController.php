@@ -6,8 +6,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\TransactionType;
 use App\Http\Requests\CreateTransactionRequest;
+use App\Http\Requests\EditTransactionRequest;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
+use App\Jobs\RecalculateRunningBalances;
+use App\Models\Transaction;
 use App\Services\TransactionService;
 use Illuminate\Database\Eloquent\Builder;
 use Inertia\Inertia;
@@ -60,11 +63,13 @@ class TransactionController extends Controller
      */
     public function store(CreateTransactionRequest $request)
     {
-        $type = TransactionType::from($request->type);
+        $inputs = $request->safe();
+
+        $type = TransactionType::from($inputs->type);
         $user = $request->user();
 
-        $amount = $request->amount;
-        $note = $request->note;
+        $amount = $inputs->amount;
+        $note = $inputs->note;
 
         if ($type === TransactionType::TRANSFER) {
             $this->transaction_service->createTransfer(
@@ -73,7 +78,7 @@ class TransactionController extends Controller
                 $request->to_account,
                 $amount,
                 $note,
-                $request->transfer_fee,
+                $inputs->transfer_fee,
             );
         } else {
             $method = "createExpense";
@@ -85,11 +90,32 @@ class TransactionController extends Controller
             $this->transaction_service->$method(
                 $user,
                 $request->account,
-                $request->category_id,
+                $inputs->category_id,
                 $amount,
                 $note
             );
         }
+
+        return back();
+    }
+
+    /**
+     * @todo
+     * 1. Allow account_id update
+     * 2. Allow transfer_fee update
+     */
+    public function update(EditTransactionRequest $request, Transaction $transaction)
+    {
+        if ($transaction->type === TransactionType::TRANSFER) {
+            $transaction_pair = $transaction->transferPair();
+
+            $this->transaction_service->updateTransaction($transaction_pair, $request->amount, $request->note);
+
+            RecalculateRunningBalances::dispatch($transaction_pair);
+        }
+
+        $this->transaction_service->updateTransaction($transaction, $request->amount, $request->note, $request->category_id);
+        RecalculateRunningBalances::dispatch($transaction);
 
         return back();
     }

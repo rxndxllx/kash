@@ -35,7 +35,7 @@ class Category extends Model
      */
     public static function transferFee(): self
     {
-        return self::where("key", "transfer_fee")->first();
+        return self::where("key", "transfer-fee")->first();
     }
 
     #[Scope]

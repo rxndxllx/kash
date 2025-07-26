@@ -18,7 +18,8 @@ return new class extends Migration
             $table->foreignId("user_id")->constrained("users");
             $table->string("name");
             $table->string("currency");
-            $table->double("balance")->default(0);
+            $table->double("current_balance");
+            $table->double("initial_balance");
             $table->string("type");
             $table->timestamps();
             $table->softDeletes();
