@@ -1,26 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { flexRender, Table as ReactTable } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { isEmpty, isEqual } from "lodash";
-import { Paginated } from "@/types/models";
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { router, useForm } from "@inertiajs/react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TableFilter } from "@/types";
+import { type Paginated } from "@/types/models";
+import { type TableFilter } from "@/types";
 
-export default function DataTable<T>({ table, data, filters }: { table: ReactTable<T>; data: Paginated<T>; filters?: TableFilter[] }) {
+export default function DataTable<T>({ table, data, filters, className }: { table: ReactTable<T>; data: Paginated<T>; filters?: TableFilter[]; className?: string }) {
     return (
         <>
-            <div className="flex items-center py-2 justify-between">
-                <DataTableFilters filters={filters} tableData={data} />
-            </div>
-            <div className="border rounded-xl h-full overflow-y-scroll">
+            { filters && (
+                <div className="flex items-center py-2 justify-between">
+                    <DataTableFilters filters={filters} tableData={data} />
+                </div>
+            )}
+            <div className={cn("border rounded-xl h-full overflow-y-scroll", className)}>
                 <div className="w-full max-h-72 p-4 pt-0">
                     <Table>
-                        <TableHeader className="sticky top-0 bg-background p-4">
+                        <TableHeader className="sticky top-0 p-4">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header) => {
@@ -70,9 +73,11 @@ export default function DataTable<T>({ table, data, filters }: { table: ReactTab
                     </Table>
                 </div>   
             </div>
-            <div className="text-muted-foreground text-sm">
+            { filters && (
+                <div className="text-muted-foreground text-sm">
                     Showing {table.getFilteredRowModel().rows.length} item(s) out of {data.meta.total}
-            </div>
+                </div>
+            )}
         </>
     );
 }

@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { SelectProps } from "@radix-ui/react-select";
 import Flag from "@/components/flag";
 
-export default function SelectCurrency({ value, onValueChange, disabled }: SelectProps) {
+export default function SelectCurrency({ value, onValueChange, disabled, showFlag = true }: SelectProps & { showFlag?: boolean }) {
     return (
         <Select
             value={value}
@@ -21,7 +21,7 @@ export default function SelectCurrency({ value, onValueChange, disabled }: Selec
 
                     return (
                         <SelectItem value={currency} key={currency}>
-                            <Flag countryCode={countryCode} />
+                            { showFlag && <Flag countryCode={countryCode} />}
                             <span>{currency}</span>
                         </SelectItem>
                     )

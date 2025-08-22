@@ -83,7 +83,7 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
         header: "Date",
         cell: ({ row }) => formatDateToFriendly(row.getValue("transacted_at"))
     },
-     {
+    {
         accessorKey: "account",
         header: "Account",
         cell: ({ row }) => {
@@ -182,5 +182,63 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
                 />
             )
         },
+    },
+];
+
+export const DASHBOARD_TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
+    {
+        accessorKey: "transacted_at",
+        header: "Date",
+        cell: ({ row }) => formatDateToFriendly(row.getValue("transacted_at"))
+    },
+    {
+        accessorKey: "account",
+        header: "Account",
+        cell: ({ row }) => {
+            const Icon = ACCOUNT_TYPE_ICON_MAP[row.original.account.type];
+
+            if (row.original.transfer_details) {
+                const transferDetails = row.original.transfer_details;
+                const isFrom = isEqual(row.original.account.id, transferDetails.from_account.id);
+
+                return (
+                     <div className="flex gap-2 items-center">
+                        <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
+                        {row.original.account.name}{" "}
+                        {
+                            isFrom
+                                ? `→ ${transferDetails.to_account.name}`
+                                : `← ${transferDetails.from_account.name}`
+                        }
+                    </div>
+                )
+            }
+
+            return (
+                <div className="flex gap-2 items-center">
+                    <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
+                    <span>{row.original.account.name}</span>
+                </div>
+            );
+        }
+    },
+    {
+        accessorKey: "amount",
+        header: "Amount",
+        cell: ({ row }) => {
+            const textColor = isEqual(row.original.type, TransactionType.EXPENSE)
+                ? "text-red-600"
+                : isEqual(row.original.type, TransactionType.INCOME)
+                    ? "text-green-600"
+                    : "";
+
+             const isDebit = isEqual(row.original.type, TransactionType.EXPENSE)
+                || isEqual(row.original.account.id, row.original.transfer_details?.from_account.id);
+
+            return (
+                <p className={textColor}>
+                    {isDebit ? "-" : "+"}{formatAmount(row.getValue("amount"), row.original.account.currency)}
+                </p>
+        )}
     },
 ];
