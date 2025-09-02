@@ -12,6 +12,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { type Paginated } from "@/types/models";
 import { type TableFilter } from "@/types";
 
+/**
+ * @todo
+ * 1. Make this component more generic. It doesn't always have to be paginated or filterable.
+ */
 export default function DataTable<T>({ table, data, filters, className }: { table: ReactTable<T>; data: Paginated<T>; filters?: TableFilter[]; className?: string }) {
     return (
         <>
@@ -86,15 +90,31 @@ export default function DataTable<T>({ table, data, filters, className }: { tabl
  * @todo
  * 1. Make this responsive
  */
-function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, filters?: TableFilter[] }) {
+export function DataTableFilters<T>({ tableData, filters }: { tableData?: Paginated<T>, filters?: TableFilter[] }) {
     const [isFiltering, setIsFiltering] = useState(false);
 
     const params = new URLSearchParams(window.location.search);
 
+    /**
+     * @todo
+     * 1. filters property should be REQUIRED
+     */
     const defaultValues = filters?.reduce<Record<string, string>>(
-        (acc, { key }) => ({ ...acc, [key]: params.get(key) ?? "" }),
-        { page: "1" }
+        (acc, { key, defaultValue }) => ({ ...acc, [key]: params.get(key) ?? defaultValue ?? "" }),
+        tableData ? { page: "1" } : {}
+    ) ?? {};
+
+    const hasParams = Array.from(params.keys()).length > 0;
+    const hasNonEmptyDefault = Object.entries(defaultValues).some(
+        ([key, value]) => key !== "page" && value !== ""
     );
+
+    if (!hasParams && hasNonEmptyDefault) {
+        router.get(window.location.pathname, defaultValues, {
+            replace: true,
+            preserveState: true,
+        });
+    }
 
     /**
      * Used simply for state management instead of manually building the form state
@@ -113,7 +133,7 @@ function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, 
                 .filter(([, v]) => !isEmpty(v))
             );
 
-        if (!isEqual(key, "page")) {
+        if (tableData && !isEqual(key, "page")) {
             _data.page = "1";
         }
 
@@ -189,53 +209,55 @@ function DataTableFilters<T>({ tableData, filters }: { tableData: Paginated<T>, 
                 @todo
                 1. Make this responsive, show max 5 page numbers at a time
             */}
-            <Pagination className="justify-end">
-                <PaginationContent>
-                    {tableData.meta.links.map((link, i) => {
-                        const isFirst = i === 0;
-                        const isLast = i === tableData.meta.links.length - 1;
-                        const isPage = !isFirst && !isLast;
+            { tableData && (
+                <Pagination className="justify-end">
+                    <PaginationContent>
+                        {tableData.meta.links.map((link, i) => {
+                            const isFirst = i === 0;
+                            const isLast = i === tableData.meta.links.length - 1;
+                            const isPage = !isFirst && !isLast;
 
-                        return (
-                            <PaginationItem key={i}>
-                            {isFirst && (
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={() => handleApplyFilter("page", (tableData.meta.current_page - 1).toString())}
-                                    disabled={tableData.meta.current_page === 1}
-                                >
-                                    <ChevronLeftIcon />
-                                </Button>
-                            )}
+                            return (
+                                <PaginationItem key={i}>
+                                {isFirst && (
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => handleApplyFilter("page", (tableData.meta.current_page - 1).toString())}
+                                        disabled={tableData.meta.current_page === 1}
+                                    >
+                                        <ChevronLeftIcon />
+                                    </Button>
+                                )}
 
-                            {isPage && (
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={() => handleApplyFilter("page", link.label)}
-                                    className="hidden 2xl:block"
-                                >
-                                    {link.label}
-                                </Button>
-                            
-                            )}
+                                {isPage && (
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => handleApplyFilter("page", link.label)}
+                                        className="hidden 2xl:block"
+                                    >
+                                        {link.label}
+                                    </Button>
+                                
+                                )}
 
-                            {isLast && (
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={() => handleApplyFilter("page", (tableData.meta.current_page + 1).toString())}
-                                    disabled={tableData.meta.current_page === tableData.meta.last_page}
-                                >
-                                    <ChevronRightIcon />
-                                </Button>
-                            )}
-                            </PaginationItem>
-                        );
-                    })}
-                </PaginationContent>
-            </Pagination>
+                                {isLast && (
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => handleApplyFilter("page", (tableData.meta.current_page + 1).toString())}
+                                        disabled={tableData.meta.current_page === tableData.meta.last_page}
+                                    >
+                                        <ChevronRightIcon />
+                                    </Button>
+                                )}
+                                </PaginationItem>
+                            );
+                        })}
+                    </PaginationContent>
+                </Pagination>
+            )}
         </>
     );
 }

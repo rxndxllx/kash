@@ -1,7 +1,7 @@
 "use client"
 
 import { ChartColumnStacked, TrendingUp } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
   Card,
@@ -19,36 +19,26 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { DashboardStats } from "@/types/models"
 
 export const description = "A stacked bar chart with a legend"
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-  { month: "July", desktop: 214, mobile: 140 },
-  { month: "August", desktop: 214, mobile: 140 },
-  { month: "September", desktop: 214, mobile: 140 },
-  { month: "October", desktop: 214, mobile: 140 },
-  { month: "November", desktop: 214, mobile: 140 },
-  { month: "December", desktop: 214, mobile: 140 },
-]
-
 const chartConfig = {
-  desktop: {
+  total_income: {
     label: "Income",
     color: "var(--chart-2)",
   },
-  mobile: {
+  total_expense: {
     label: "Expense",
     color: "var(--chart-4)",
   },
 } satisfies ChartConfig
 
-export function ChartBarStacked() {
+/**
+ * @todo
+ * 1. Clean this component. This should be reusable.
+ */
+export function ChartBarStacked({ data }: { data: DashboardStats[] }) {
   return (
     <Card>
       <CardHeader>
@@ -60,26 +50,35 @@ export function ChartBarStacked() {
             config={chartConfig}
             className="aspect-auto h-96 w-full"
         >
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => {
+                const months = [
+                  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                ];
+                return months[value - 1];
+              }}
             />
-            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value) => `$${value}`} // optional, formats the number
+            />
+            <ChartTooltip content={<ChartTooltipContent hideLabel/>} />
             <ChartLegend content={<ChartLegendContent />} />
             <Bar
-              dataKey="desktop"
-              stackId="a"
+              dataKey="total_income"
               fill="var(--chart-2)"
-              radius={[0, 0, 4, 4]}
+              radius={[4, 4, 0, 0]}
             />
             <Bar
-              dataKey="mobile"
-              stackId="a"
+              dataKey="total_expense"
               fill="var(--chart-4)"
               radius={[4, 4, 0, 0]}
             />

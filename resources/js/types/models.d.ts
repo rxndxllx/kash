@@ -47,6 +47,16 @@ export interface Category {
     title: string;
 }
 
+export interface DashboardStats {
+    id: number;
+    currency: Currency;
+    month: number;
+    year: number;
+    total_balance: number;
+    total_income: number;
+    total_expense: number;
+}
+
 interface Resource<T> {
     data: T[];
 }

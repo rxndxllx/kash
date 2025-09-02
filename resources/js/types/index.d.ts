@@ -38,6 +38,7 @@ export interface SharedData {
 
 export interface BaseTableFilter {
     key: string;
+    defaultValue?: string;
 }
 
 interface SelectTableFilter extends BaseTableFilter {
@@ -47,6 +48,7 @@ interface SelectTableFilter extends BaseTableFilter {
         title: string;
         value: string;
     }[];
+    defaultValue?: string;
 }
 
 interface SearchBarTableFilter extends BaseTableFilter {

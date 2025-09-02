@@ -8,39 +8,39 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { TransactionType } from "@/lib/enums"
 
 export const description = "A mixed bar chart"
 
-const chartData = [
-  { browser: "safari", visitors: 80000, fill: "var(--chart-2)" },
-  { browser: "chrome", visitors: 70000, fill: "var(--chart-4)" },
-]
-
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  total: {
+    label: "Amount",
   },
-  safari: {
+  income: {
     label: "Income",
     color: "var(--chart-2)",
   },
-  chrome: {
+  expense: {
     label: "Expense",
-    color: "var(--chart-1)",
+    color: "var(--chart-4)",
   },
   
 } satisfies ChartConfig
 
-export function ChartBarMixed() {
+/**
+ * @todo
+ * 1. Clean this component. This should be reusable.
+ */
+export function ChartBarMixed({ data }: { data: { type: TransactionType.EXPENSE|TransactionType.INCOME; total: number; fill: string; }[]}) {
   return (
         <ChartContainer config={chartConfig} className="max-h-50">
           <BarChart
             accessibilityLayer
-            data={chartData}
+            data={data}
             layout="vertical"
           >
             <YAxis
-              dataKey="browser"
+              dataKey="type"
               type="category"
               tickLine={false}
               tickMargin={10}
@@ -50,12 +50,12 @@ export function ChartBarMixed() {
               }
 
             />
-            <XAxis dataKey="visitors" type="number" />
+            <XAxis dataKey="total" type="number" />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel={false} />}
             />
-            <Bar dataKey="visitors" layout="vertical" radius={5} />
+            <Bar dataKey="total" layout="vertical" radius={5} />
           </BarChart>
         </ChartContainer>
   )
