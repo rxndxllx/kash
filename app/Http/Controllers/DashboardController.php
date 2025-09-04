@@ -28,28 +28,16 @@ class DashboardController extends Controller
         $inputs = $request->safe();
         $user = $request->user();
 
-        /**
-         * Canonicalize the dashboard route. If no filters were passed,
-         * redirect to the dashboard with the default filter values.
-         */
-        if (!$inputs->currency || !$inputs->month || !$inputs->year) {
-            return redirect()->route("dashboard", [
-                "currency" => $inputs->currency ?? Currency::USD,
-                "year" => $inputs->year ?? now()->year,
-                "month" => $inputs->month ?? now()->month,
-            ]);
-        }
-
         $all = DashboardStats::where("year", $inputs->year)->get();
         $month = $all->firstWhere("month", $inputs->month);
-        $recent_transactions = $user->transactions()
-            ->whereRelation("account", "currency", $inputs->currency)
-            ->orderByDesc("transacted_at")
-            ->orderByDesc("id")
-            ->paginate(10);
 
         $yearly_data = $this->dashboard_service->generateYearlyData($all, $inputs);
         $monthly_data = $this->dashboard_service->generateMonthlyData($month, $inputs);
+        $recent_transactions = $user->transactions()
+            ->whereCurrency(Currency::from($inputs->currency))
+            ->orderByDesc("transacted_at")
+            ->orderByDesc("id")
+            ->paginate(10);
 
         return Inertia::render("dashboard", [
             "yearly_data" => $yearly_data,

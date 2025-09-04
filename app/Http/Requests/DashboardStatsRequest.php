@@ -15,12 +15,21 @@ class DashboardStatsRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            "currency" => $this->currency ?? Currency::USD->value,
+            "year" => $this->year ?? now()->year,
+            "month" => $this->month ?? now()->month,
+        ]);
+    }
+
     public function rules(): array
     {
         return [
-            "currency" => ["sometimes", Rule::enum(Currency::class)],
-            "month" => ["sometimes", "numeric", "min:1", "max:12"],
-            "year" => ["sometimes", "numeric", "min:2025", "digits:4"],
+            "currency" => ["required", Rule::enum(Currency::class)],
+            "month" => ["required", "numeric", "min:1", "max:12"],
+            "year" => ["required", "numeric", "min:2025", "digits:4"],
         ];
     }
 }

@@ -24,7 +24,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 type DashboardProps = {
     yearly_data: DashboardStats[];
-    monthly_data: DashboardStats & { cash_flow: number };
+    monthly_data: DashboardStats & {
+        cash_flow: number;
+        top_incomes: { category: string; percentage: number; total_amount: number }[];
+        top_expenses: { category: string; percentage: number; total_amount: number }[];
+     };
     recent_transactions: Paginated<Transaction>;
 }
 
@@ -84,60 +88,56 @@ export default function Dashboard({ yearly_data, monthly_data, recent_transactio
                         </CardContent>
                     </Card>
                     <div className="col-span-1 row-span-2 grid gap-4">
-                        <Card className="row-span-1 bg-chart-2 text-primary-foreground">
+                        <Card className="row-span-1 bg-chart-2 text-primary-foreground min-h-44">
                             <CardHeader className="flex flex-row justify-between items-center">
                                 <CardTitle className="flex items-center gap-2"><ChartNoAxesColumn />Top Income</CardTitle>
                             </CardHeader>
                             <CardContent className="size-full flex flex-col">
                                 <div className="flex">
                                     <ol className="list-inside pt-3 w-full">
-                                        <li>
-                                            <div className="flex justify-between items-center">
-                                                <p>Housing</p>
-                                                <span>40%</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="flex justify-between items-center">
-                                                <p>Pets</p>
-                                                <span>20%</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="flex justify-between items-center">
-                                                <p>Health & Medicine</p>
-                                                <span>15%</span>
-                                            </div>
-                                        </li>
+                                        { monthly_data.top_incomes.length > 0
+                                            ? (monthly_data.top_incomes.map((income) => 
+                                                <li>
+                                                    <div className="flex justify-between items-center">
+                                                        <p>{income.category}</p>
+                                                        <span>{income.percentage}%</span>
+                                                    </div>
+                                                </li>
+                                            )) : (
+                                                <li>
+                                                    <div className="flex justify-center items-center">
+                                                        <p>No data.</p>
+                                                    </div>
+                                                </li>
+                                            )
+                                        }
                                     </ol>
                                 </div>
                             </CardContent>
                         </Card>
-                        <Card className="row-span-1 bg-chart-4 text-primary-foreground">
+                        <Card className="row-span-1 bg-chart-4 text-primary-foreground min-h-44">
                             <CardHeader className="flex flex-row justify-between items-center">
                                 <CardTitle className="flex items-center gap-2"><ChartNoAxesColumn />Top Expenses</CardTitle>
                             </CardHeader>
                             <CardContent className="size-full flex flex-col">
                                 <div className="flex">
                                     <ol className="list-inside pt-3 w-full">
-                                        <li>
-                                            <div className="flex justify-between items-center">
-                                                <p>Housing</p>
-                                                <span>40%</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="flex justify-between items-center">
-                                                <p>Pets</p>
-                                                <span>20%</span>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="flex justify-between items-center">
-                                                <p>Health & Medicine</p>
-                                                <span>15%</span>
-                                            </div>
-                                        </li>
+                                        { monthly_data.top_expenses.length > 0
+                                            ? (monthly_data.top_expenses.map((income) => 
+                                                <li>
+                                                    <div className="flex justify-between items-center">
+                                                        <p>{income.category}</p>
+                                                        <span>{income.percentage}%</span>
+                                                    </div>
+                                                </li>
+                                            )) : (
+                                                <li>
+                                                    <div className="flex justify-center items-center">
+                                                        <p>No data.</p>
+                                                    </div>
+                                                </li>
+                                            )
+                                        }
                                     </ol>
                                 </div>
                             </CardContent>

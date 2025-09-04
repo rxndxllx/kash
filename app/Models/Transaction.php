@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\Currency;
 use App\Enums\TransactionType;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -33,6 +36,33 @@ class Transaction extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::created(function (self $transaction) {
+            $stats = DashboardStats::where(
+                [
+                    "currency" => $transaction->currency,
+                    "month" => $transaction->transacted_at->month,
+                    "year" => $transaction->transacted_at->year,
+                ]
+            );
+
+            switch ($transaction->type) {
+                case TransactionType::INCOME:
+                    $stats->total_balance += $transaction->amount;
+                    $stats->total_income += $transaction->amount;
+                    break;
+
+                case TransactionType::EXPENSE:
+                    $stats->total_balance -= $transaction->amount;
+                    $stats->total_expense += $transaction->amount;
+                    break;
+            }
+
+            $stats->save();
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -51,6 +81,17 @@ class Transaction extends Model
     public function transferDetails(): BelongsTo
     {
         return $this->belongsTo(Transfer::class, "transfer_id", "id");
+    }
+
+    #[Scope]
+    protected function whereCurrency(Builder $query, Currency $currency): void
+    {
+        $query->whereRelation("account", "currency", $currency);
+    }
+
+    public function currency(): Attribute
+    {
+        return new Attribute(fn () => $this->account->currency);
     }
 
     public function isTransferDebit(): bool

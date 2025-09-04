@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\Currency;
+use App\Enums\TransactionType;
 use App\Models\DashboardStats;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ValidatedInput;
 
 class DashboardService
@@ -44,6 +48,54 @@ class DashboardService
             "month" => $data?->month ?? $inputs->month,
             "year" => $data?->year ?? $inputs->year,
             "cash_flow" => $data?->cash_flow ?? 0,
+            "top_incomes" => $this->getTopCategories(
+                TransactionType::INCOME,
+                Currency::from($inputs->currency),
+                (int) $inputs->month,
+                13020
+            ),
+            "top_expenses" => $this->getTopCategories(
+                TransactionType::EXPENSE,
+                Currency::from($inputs->currency),
+                (int) $inputs->month,
+                0
+            ),
         ]);
+
+    }
+
+    private function getTopCategories(
+        TransactionType $type,
+        Currency $currency,
+        int $month,
+        int $total_amount
+    ): Collection {
+        $user = auth()->user();
+
+        $transactions = $user->transactions()
+            ->with("category:id,title")
+            ->select(["category_id", DB::raw("SUM(amount) as total")])
+            ->whereType($type)
+            ->whereCurrency($currency)
+            ->whereMonth("transacted_at", $month)
+            ->groupBy("category_id")
+            ->orderByDesc("total")
+            ->limit(3)
+            ->get();
+
+        $result = $transactions->map(function (Transaction $transaction) use ($total_amount) {
+            return [
+                "category" => $transaction->category->title,
+                "total_amount" => $transaction->total,
+                "percentage" => $this->computePercentage($transaction->total, $total_amount, 1),
+            ];
+        });
+
+        return $result;
+    }
+
+    private function computePercentage(float $part, float $whole, int $precision = 0): float
+    {
+        return round(($part / $whole) * 100, $precision);
     }
 }
