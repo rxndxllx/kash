@@ -12,12 +12,13 @@ return new class extends Migration
     {
         Schema::create("dashboard_stats", function (Blueprint $table) {
             $table->id();
+            $table->foreignId("user_id")->constrained("users");
             $table->string("currency");
             $table->integer("month");
             $table->integer("year");
-            $table->double("total_balance");
-            $table->double("total_income");
-            $table->double("total_expense");
+            $table->double("total_balance")->default(0);
+            $table->double("total_income")->default(0);
+            $table->double("total_expense")->default(0);
             $table->timestamps();
         });
     }

@@ -28,7 +28,10 @@ class DashboardController extends Controller
         $inputs = $request->safe();
         $user = $request->user();
 
-        $all = DashboardStats::where("year", $inputs->year)->get();
+        $all = DashboardStats::where("year", $inputs->year)
+            ->where("currency", $inputs->currency)
+            ->get();
+
         $month = $all->firstWhere("month", $inputs->month);
 
         $yearly_data = $this->dashboard_service->generateYearlyData($all, $inputs);

@@ -17,6 +17,7 @@ class DashboardStats extends Model
         "total_balance",
         "total_expense",
         "total_income",
+        "user_id",
     ];
 
     protected function casts(): array

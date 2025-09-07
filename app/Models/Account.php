@@ -34,6 +34,23 @@ class Account extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::created(function (self $account) {
+            $stats = DashboardStats::firstOrNew(
+                [
+                    "user_id" => $account->user_id,
+                    "currency" => $account->currency,
+                    "month" => now()->month,
+                    "year" => now()->year,
+                ]
+            );
+
+            $stats->total_balance += $account->initial_balance;
+            $stats->save();
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

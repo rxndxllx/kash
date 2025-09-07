@@ -1,6 +1,7 @@
 import { AccountType, Currency, TransactionType } from "@/lib/enums";
 import { startCase } from "lodash";
 import { TableFilter } from "@/types";
+import dayjs from "dayjs";
 import SelectAccount from "@/components/select-account";
 import SelectCategory from "@/components/select-category";
 import SelectCurrency from "@/components/select-currency";
@@ -113,7 +114,7 @@ export const DASHBOARD_FILTERS: TableFilter[] = [
             { title: "December", value: "12" },
         ],
         placeholder: "Month",
-        defaultValue: "1",
+        defaultValue: (dayjs().month() + 1).toString(),
     },
     {
         type: "select",
@@ -122,7 +123,7 @@ export const DASHBOARD_FILTERS: TableFilter[] = [
             { title: "2025", value: "2025" },
         ],
         placeholder: "Year",
-        defaultValue: "2025",
+        defaultValue: (dayjs().year()).toString(),
     },
 
 ];

@@ -30,8 +30,8 @@ class DashboardService
 
             return [
                 "month" => $month,
-                "total_expense" => $stat?->total_expense ?? rand(10, 20),
-                "total_income" => $stat?->total_income ?? rand(10, 20),
+                "total_expense" => $stat?->total_expense ?? 0,
+                "total_income" => $stat?->total_income ?? 0,
                 "currency" => $stat?->currency ?? $inputs->currency,
                 "year" => $stat?->year ?? $inputs->year,
             ];
@@ -42,8 +42,8 @@ class DashboardService
     {
         return collect([
             "total_balance" => $data?->total_balance ?? 0,
-            "total_expense" => $data?->total_expense ?? 10,
-            "total_income" => $data?->total_income ?? 20,
+            "total_expense" => $data?->total_expense ?? 0,
+            "total_income" => $data?->total_income ?? 0,
             "currency" => $data?->currency ?? $inputs->currency,
             "month" => $data?->month ?? $inputs->month,
             "year" => $data?->year ?? $inputs->year,
@@ -52,13 +52,13 @@ class DashboardService
                 TransactionType::INCOME,
                 Currency::from($inputs->currency),
                 (int) $inputs->month,
-                13020
+                $data?->total_income ?? 0,
             ),
             "top_expenses" => $this->getTopCategories(
                 TransactionType::EXPENSE,
                 Currency::from($inputs->currency),
                 (int) $inputs->month,
-                0
+                $data?->total_expense ?? 0,
             ),
         ]);
 
@@ -68,7 +68,7 @@ class DashboardService
         TransactionType $type,
         Currency $currency,
         int $month,
-        int $total_amount
+        float $total_amount
     ): Collection {
         $user = auth()->user();
 

@@ -39,8 +39,9 @@ class Transaction extends Model
     protected static function booted(): void
     {
         static::created(function (self $transaction) {
-            $stats = DashboardStats::where(
+            $stats = DashboardStats::firstOrNew(
                 [
+                    "user_id" => $transaction->user_id,
                     "currency" => $transaction->currency,
                     "month" => $transaction->transacted_at->month,
                     "year" => $transaction->transacted_at->year,
