@@ -1,13 +1,16 @@
-import { ArrowLeftRight, Banknote, BetweenVerticalStart, ChartNoAxesColumn, TrendingUp } from "lucide-react";
+import { ArrowLeftRight, Banknote, BetweenVerticalStart, ChartNoAxesColumn, CircleFadingPlus, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartBarMixed } from "@/components/chart-bar-mixed";
 import { ChartBarStacked } from "@/components/chart-bar-stacked-legend";
 import { DASHBOARD_FILTERS } from "@/lib/table-filters";
 import { DASHBOARD_TRANSACTIONS_TABLE_COLUMNS } from "@/lib/table-columns";
 import { DashboardStats, Paginated, type Transaction } from "@/types/models";
+import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
+import { DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatAmount } from "@/lib/utils";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { Head } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { TransactionType } from "@/lib/enums";
 import { type BreadcrumbItem } from "@/types";
 import AppLayout from "@/layouts/app-layout";
@@ -47,7 +50,28 @@ export default function Dashboard({ yearly_data, monthly_data, recent_transactio
                     <div className="flex justify-between items-center">
                         <Heading title="Dashboard" description="A quick peek into your finances" />
                     </div>
-                    <DataTableFilters filters={DASHBOARD_FILTERS} />
+                    <div className="flex items-center gap-2">
+                        <DataTableFilters filters={DASHBOARD_FILTERS} />
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button size="lg">
+                                    Create New
+                                    <CircleFadingPlus height={8} width={8}/>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start">
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/accounts?new=true">Account</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/transactions?new=true">Transaction</Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                    
                 </div>
                 <div className="grid gap-4 xl:grid-cols-3 xl:grid-rows-2 flex-2">
                     <Card className="size-full row-span-2 shadow-sm shadow-chart-2">

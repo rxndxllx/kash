@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn, parseIntOrSelf } from "@/lib/utils";
-import { FormEventHandler, JSX } from "react";
-import { Input } from "@/components/ui/input";
+import { FormEventHandler, JSX, useState } from "react";
 import { isEqual } from "lodash";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
@@ -12,6 +11,7 @@ import { Transaction } from "@/types/models";
 import { TransactionType } from "@/lib/enums";
 import { useForm } from "@inertiajs/react";
 import InputError from "@/components/input-error";
+import NumberInput from "@/components/number-input";
 import SelectAccount from "@/components/select-account";
 import SelectCategory from "@/components/select-category";
 
@@ -27,8 +27,14 @@ type CreateTransactionForm = {
     type: TransactionType;
 };
 
+/**
+ * @todo
+ * 1. Consider reusing the create transaction form since it is basically the same
+ */
 export default function EditTransactionFormSheet({ transaction, trigger }: { transaction: Transaction, trigger: JSX.Element }) {
-    const { data, setData, put, errors, reset, processing, transform } = useForm<Required<CreateTransactionForm>>({
+    const [open, setOpen] = useState(false);
+
+    const { data, setData, put, errors, processing, transform } = useForm<Required<CreateTransactionForm>>({
             note: transaction.note ?? "",
             transacted_at: transaction.transacted_at,
             amount: transaction.amount,
@@ -53,7 +59,7 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
 
         put(route("edit-transaction", { id: transaction.id }), {
             onSuccess: () => {
-                reset();
+                setOpen(false);
                 toast("Transaction updated", {
                     closeButton: true,
                     position: "top-center",
@@ -64,29 +70,35 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
     };
 
     return (
-        <Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
             {trigger}
             <SheetContent>
                 <SheetHeader><SheetTitle>Edit Transaction</SheetTitle></SheetHeader>
                 <form onSubmit={submit} className="grid flex-1">
                     <div className="grid flex-1 auto-rows-min gap-6 px-4">
                         <div className="grid gap-3">
-                            <Input
-                                placeholder="0"
-                                className={cn(
+                            <div className={
+                                cn(
                                     isEqual(data.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600",
-                                    "border-none shadow-none focus-visible:ring-0 text-4xl font-extrabold resize-none dark:bg-input/0 text-right")}
-                                autoFocus
-                                value={data.amount}
-                                onChange={(e) => setData("amount", parseFloat(e.target.value))}
-                                required
-                                type="number"
-                            />
+                                    "flex items-center"
+                                )
+                            }>
+                                <NumberInput
+                                    value={data.amount}
+                                    className={cn(
+                                        isEqual(data.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600",
+                                        "border-none shadow-none focus-visible:ring-0 text-4xl font-extrabold resize-none dark:bg-input/0 text-right")}
+                                    autoFocus
+                                    onChange={(value: number) => setData("amount", value)}
+                                    required
+                                />
+                            </div>
                             <InputError message={errors.amount}/>
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Type</Label>
+                            <Label htmlFor="type">Type</Label>
                             <RadioGroup
+                                id="type"
                                 value={data.type}
                                 className="flex"
                                 onValueChange={(value) => setData("type", value as TransactionType)}
@@ -112,7 +124,7 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                             ? (
                                 <>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">Origin Account</Label>
+                                        <Label>Origin Account</Label>
                                         <SelectAccount
                                             required
                                             value={data.from_account_id}
@@ -122,7 +134,7 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                                         <InputError message={errors.from_account_id}/>
                                     </div>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">To Account</Label>
+                                        <Label>To Account</Label>
                                         <SelectAccount
                                             required
                                             value={data.to_account_id}
@@ -132,14 +144,13 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                                         <InputError message={errors.to_account_id}/>
                                     </div>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">Transfer Fee</Label>
-                                        <Input
-                                            placeholder="0"
+                                        <Label htmlFor="transfer-fee">Transfer Fee</Label>
+                                        <NumberInput
+                                            id="transfer-fee"
+                                            onChange={(value) => setData("transfer_fee", value)}
                                             value={data.transfer_fee}
-                                            onChange={(e) => setData("transfer_fee", parseFloat(e.target.value))}
                                             required
-                                            type="number"
-                                            disabled
+                                            placeholder="0"
                                         />
                                         <InputError message={errors.transfer_fee}/>
                                     </div>
@@ -147,7 +158,7 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                             ) : (
                                 <>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">Account</Label>
+                                        <Label>Account</Label>
                                         <SelectAccount
                                             required
                                             value={data.account_id}
@@ -157,7 +168,7 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                                         <InputError message={errors.account_id}/>
                                     </div>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">Category</Label>
+                                        <Label>Category</Label>
                                         <SelectCategory
                                             required
                                             value={data.category_id}
@@ -168,11 +179,10 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                                 </>   
                             )
                         }
-                        {/* @todo create a CategorySelect component */}
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Note</Label>
+                            <Label htmlFor="note">Note</Label>
                             <Textarea
-                                id="sheet-demo-name"
+                                id="note"
                                 name="note"
                                 className="resize-none"
                                 value={data.note}

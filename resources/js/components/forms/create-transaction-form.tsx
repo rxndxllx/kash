@@ -27,7 +27,7 @@ type CreateTransactionForm = {
     type: TransactionType;
 };
 
-export default function CreateTransactionFormSheet() {
+export default function CreateTransactionFormSheet({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void; }) {
     const { data, setData, post, errors, reset, processing, transform } = useForm<Required<CreateTransactionForm>>({
             note: "",
             transacted_at: "",
@@ -68,7 +68,7 @@ export default function CreateTransactionFormSheet() {
     };
 
     return (
-        <Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
                 <Button size="lg">
                     Create New

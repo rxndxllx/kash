@@ -1,8 +1,8 @@
+import { Account } from "@/types/models";
 import { Button } from "@/components/ui/button";
 import { CircleFadingPlus } from "lucide-react";
 import { Currency, AccountType } from "@/lib/enums";
 import { FormEventHandler, JSX, useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -12,7 +12,7 @@ import { toUpper, startCase } from "lodash";
 import { useForm } from "@inertiajs/react";
 import * as Flags from "country-flag-icons/react/3x2";
 import InputError from "@/components/input-error";
-import { Account } from "@/types/models";
+import NumberInput from "@/components/number-input";
 
 type EditAccountForm = {
     name: string;
@@ -21,6 +21,10 @@ type EditAccountForm = {
     type: AccountType;
 };
 
+/**
+ * @todo
+ * 1. Consider reusing the create account form since it is basically the same
+ */
 export default function EditAccountFormSheet({ account, trigger }: { account: Account; trigger: JSX.Element }) {
     const [open, setOpen] = useState(false);
 
@@ -36,13 +40,12 @@ export default function EditAccountFormSheet({ account, trigger }: { account: Ac
 
         put(route("edit-account", { id: account.id }), {
             onSuccess: () => {
+                setOpen(false);
                 toast("Account updated", {
                     closeButton: true,
                     position: "top-center",
                     description: `Successfully updated account ${data.name}.`
                 });
-
-                setOpen(false);
             },
         });
     };
@@ -56,7 +59,7 @@ export default function EditAccountFormSheet({ account, trigger }: { account: Ac
                     <div className="grid flex-1 auto-rows-min gap-6 px-4">
                         <div className="grid gap-3">
                             <Textarea
-                                id="sheet-demo-name"
+                                id="name"
                                 placeholder="Name"
                                 className="border-none shadow-none focus-visible:ring-0 text-2xl font-extrabold resize-none dark:bg-input/0"
                                 autoFocus
@@ -67,18 +70,17 @@ export default function EditAccountFormSheet({ account, trigger }: { account: Ac
                             <InputError message={errors.name}/>
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Balance</Label>
-                            <Input
-                                id="sheet-demo-name"
-                                type="number"
+                            <Label htmlFor="balance">Balance</Label>
+                            <NumberInput
+                                id="current-balance"
+                                onChange={(value) => setData("balance", value)}
                                 value={data.balance}
-                                onChange={(e) => setData("balance",parseFloat(e.target.value))}
                                 required
                             />
                             <InputError message={errors.balance}/>
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Currency</Label>
+                            <Label>Currency</Label>
                             <Select
                                 value={data.currency}
                                 onValueChange={(value) => setData("currency", value as Currency)}
@@ -98,7 +100,7 @@ export default function EditAccountFormSheet({ account, trigger }: { account: Ac
                             <InputError message={errors.currency}/>
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Type</Label>
+                            <Label>Type</Label>
                             <Select value={data.type} onValueChange={(value) => setData("type", value as AccountType)} required>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select Type" />

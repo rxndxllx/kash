@@ -1,4 +1,3 @@
-import { Account } from "@/types/models";
 import { Button } from "@/components/ui/button";
 import { CircleFadingPlus } from "lucide-react";
 import { CURRENCY_COUNTRY_CODE_MAP } from "@/lib/constants";
@@ -22,12 +21,14 @@ type CreateAccountForm = {
     type: AccountType | "";
 };
 
-export default function CreateAccountFormSheet({ account }: { account?: Account }) {
+type CreateAccountFormSheetProps = { open: boolean; setOpen: (open: boolean) => void };
+
+export default function CreateAccountFormSheet({ open, setOpen }: CreateAccountFormSheetProps) {
     const { data, setData, post, errors, reset, processing } = useForm<Required<CreateAccountForm>>({
-            name: account?.name ?? "",
-            balance: account?.balance ?? 0,
-            currency: account?.currency ?? "",
-            type: account?.type ?? "",
+            name: "",
+            balance: 0,
+            currency: "",
+            type: "",
         });
     
     const submit: FormEventHandler = (e) => {
@@ -40,12 +41,12 @@ export default function CreateAccountFormSheet({ account }: { account?: Account 
                     closeButton: true,
                     position: "top-center",
                     description: `Successfully created new account ${data.name}.`
-                })
+                });
             },
         });
     };
     return (
-        <Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
                 <Button size="lg">
                     Create New

@@ -4,6 +4,7 @@ import { Head } from "@inertiajs/react";
 import { Paginated, Transaction } from "@/types/models";
 import { TRANSACTIONS_TABLE_COLUMNS } from "@/lib/table-columns";
 import { TRANSACTIONS_TABLE_FILTERS } from "@/lib/table-filters";
+import { useEffect, useState } from "react";
 import AppLayout from "@/layouts/app-layout";
 import CreateTransactionFormSheet from "@/components/forms/create-transaction-form";
 import DataTable from "@/components/data-table";
@@ -17,11 +18,18 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Transactions({ transactions }: { transactions: Paginated<Transaction> }) {
+    const [openForm, setOpenForm] = useState(false);
+
     const table = useReactTable<Transaction>({
         data: transactions.data,
         columns: TRANSACTIONS_TABLE_COLUMNS,
         getCoreRowModel: getCoreRowModel(),
     });
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        setOpenForm(!!params.get("new"));
+    }, []);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -29,7 +37,7 @@ export default function Transactions({ transactions }: { transactions: Paginated
             <div className="flex h-full flex-col gap-4 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                     <Heading title="Transactions" description="View and manage all your transactions in one place" />
-                    <CreateTransactionFormSheet />
+                    <CreateTransactionFormSheet open={openForm} setOpen={setOpenForm}/>
                 </div>
                 <DataTable table={table} data={transactions} filters={TRANSACTIONS_TABLE_FILTERS}/>
             </div>
