@@ -15,12 +15,17 @@ export default function NumberInput({ value, onChange, ...props }: Omit<InputPro
     const handleChange = (input: string) => {
         /**
          * Remove amount formatting from the input before validating.
-         * If the input is empty or invalid, update the form value to 0.
+         * If the input is empty, update the form value to 0.
+         * If the input is invalid, skip the change.
          */
         const sanitized = input.replaceAll(",", "");
 
-        if (isEmpty(sanitized) || !REGEX.POSITIVE_DECIMAL.test(sanitized)) {
+        if (isEmpty(sanitized)) {
             onChange(0);
+            return;
+        }
+
+        if (!REGEX.POSITIVE_DECIMAL.test(sanitized)) {
             return;
         }
 

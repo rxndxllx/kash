@@ -26,11 +26,21 @@ export function formatAmount(value: number, currency?: Currency): string {
  * Sanitizes and converts an amount string into float.
  * Returns 0 if the input is an invalid number.
  */
-export function amountToFloat(value: string): number {
+export function amountToFloat(value: string, decimalPlaces = 2): number {
     const str = value.replace(REGEX.INVALID_NUMERIC_CHAR, "");
     const parsed = parseFloat(str);
 
-    return isNaN(parsed) ? 0 : parsed;
+    return isNaN(parsed) ? 0 : round(parsed, decimalPlaces, "down");
+}
+
+export function round(number: number, decimalPlaces = 2, type: "up" | "down" | "standard" = "standard"): number {
+    const factor = Math.pow(10, decimalPlaces);
+
+    switch (type) {
+        case "up": return Math.ceil(number * factor) / factor;
+        case "down": return Math.floor(number * factor) / factor;
+        default: return parseFloat(number.toFixed(decimalPlaces));
+    };
 }
 
 export function formatDateToFriendly(value: string): string

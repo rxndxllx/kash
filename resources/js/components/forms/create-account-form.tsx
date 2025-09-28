@@ -4,7 +4,6 @@ import { CircleFadingPlus } from "lucide-react";
 import { CURRENCY_COUNTRY_CODE_MAP } from "@/lib/constants";
 import { Currency, AccountType } from "@/lib/enums";
 import { FormEventHandler } from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -14,6 +13,7 @@ import { toUpper, startCase } from "lodash";
 import { useForm } from "@inertiajs/react";
 import Flag from "@/components/flag";
 import InputError from "@/components/input-error";
+import NumberInput from "@/components/number-input";
 
 type CreateAccountForm = {
     name: string;
@@ -58,7 +58,7 @@ export default function CreateAccountFormSheet({ account }: { account?: Account 
                     <div className="grid flex-1 auto-rows-min gap-6 px-4">
                         <div className="grid gap-3">
                             <Textarea
-                                id="sheet-demo-name"
+                                id="account-name"
                                 placeholder="Name"
                                 className="border-none shadow-none focus-visible:ring-0 text-2xl font-extrabold resize-none dark:bg-input/0"
                                 autoFocus
@@ -69,18 +69,17 @@ export default function CreateAccountFormSheet({ account }: { account?: Account 
                             <InputError message={errors.name}/>
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Initial Balance</Label>
-                            <Input
-                                id="sheet-demo-name"
-                                type="number"
+                            <Label htmlFor="current-balance">Current Balance</Label>
+                            <NumberInput
+                                id="current-balance"
+                                onChange={(value) => setData("balance", value)}
                                 value={data.balance}
-                                onChange={(e) => setData("balance",parseFloat(e.target.value))}
                                 required
                             />
                             <InputError message={errors.balance}/>
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Currency</Label>
+                            <Label>Currency</Label>
                             <Select
                                 value={data.currency}
                                 onValueChange={(value) => setData("currency", value as Currency)}
@@ -100,7 +99,7 @@ export default function CreateAccountFormSheet({ account }: { account?: Account 
                             <InputError message={errors.currency}/>
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Type</Label>
+                            <Label>Type</Label>
                             <Select value={data.type} onValueChange={(value) => setData("type", value as AccountType)} required>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select Type" />

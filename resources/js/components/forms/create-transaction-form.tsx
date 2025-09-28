@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { CircleFadingPlus } from "lucide-react";
 import { cn, parseIntOrSelf } from "@/lib/utils";
 import { FormEventHandler } from "react";
-import { Input } from "@/components/ui/input";
 import { isEqual } from "lodash";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
@@ -100,8 +99,9 @@ export default function CreateTransactionFormSheet() {
                             <InputError message={errors.amount}/>
                         </div>
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Type</Label>
+                            <Label htmlFor="type">Type</Label>
                             <RadioGroup
+                                id="type"
                                 value={data.type}
                                 className="flex"
                                 onValueChange={(value) => setData("type", value as TransactionType)}
@@ -126,7 +126,7 @@ export default function CreateTransactionFormSheet() {
                             ? (
                                 <>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">Origin Account</Label>
+                                        <Label>Origin Account</Label>
                                         <SelectAccount
                                             required
                                             value={data.from_account_id}
@@ -136,7 +136,7 @@ export default function CreateTransactionFormSheet() {
                                         <InputError message={errors.from_account_id}/>
                                     </div>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">To Account</Label>
+                                        <Label>To Account</Label>
                                         <SelectAccount
                                             required
                                             value={data.to_account_id}
@@ -146,13 +146,13 @@ export default function CreateTransactionFormSheet() {
                                         <InputError message={errors.to_account_id}/>
                                     </div>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">Transfer Fee</Label>
-                                        <Input
-                                            placeholder="0"
+                                        <Label htmlFor="transfer-fee">Transfer Fee</Label>
+                                        <NumberInput
+                                            id="transfer-fee"
+                                            onChange={(value) => setData("transfer_fee", value)}
                                             value={data.transfer_fee}
-                                            onChange={(e) => setData("transfer_fee", parseFloat(e.target.value))}
                                             required
-                                            type="number"
+                                            placeholder="0"
                                         />
                                         <InputError message={errors.transfer_fee}/>
                                     </div>
@@ -160,7 +160,7 @@ export default function CreateTransactionFormSheet() {
                             ) : (
                                 <>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">Account</Label>
+                                        <Label>Account</Label>
                                         <SelectAccount
                                             required
                                             value={data.account_id}
@@ -170,7 +170,7 @@ export default function CreateTransactionFormSheet() {
                                         <InputError message={errors.account_id}/>
                                     </div>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="sheet-demo-name">Category</Label>
+                                        <Label>Category</Label>
                                         <SelectCategory
                                             required
                                             value={data.category_id}
@@ -182,9 +182,9 @@ export default function CreateTransactionFormSheet() {
                             )
                         }
                         <div className="grid gap-3">
-                            <Label htmlFor="sheet-demo-name">Note</Label>
+                            <Label htmlFor="note">Note</Label>
                             <Textarea
-                                id="sheet-demo-name"
+                                id="note"
                                 name="note"
                                 className="resize-none"
                                 value={data.note}
