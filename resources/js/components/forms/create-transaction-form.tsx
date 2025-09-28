@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { TransactionType } from "@/lib/enums";
 import { useForm } from "@inertiajs/react";
 import InputError from "@/components/input-error";
+import NumberInput from "@/components/number-input";
 import SelectAccount from "@/components/select-account";
 import SelectCategory from "@/components/select-category";
 
@@ -43,6 +44,10 @@ export default function CreateTransactionFormSheet() {
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
+        /**
+         * @todo
+         * Maybe remove this?? Don't remember the purpose but it seems useless
+         */
         transform((data) => ({
             ...data,
             account_id: parseIntOrSelf(data.account_id),
@@ -76,17 +81,22 @@ export default function CreateTransactionFormSheet() {
                 <form onSubmit={submit} className="grid flex-1">
                     <div className="grid flex-1 auto-rows-min gap-6 px-4">
                         <div className="grid gap-3">
-                            <Input
-                                placeholder="0"
-                                className={cn(
+                            <div className={
+                                cn(
                                     isEqual(data.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600",
-                                    "border-none shadow-none focus-visible:ring-0 text-4xl font-extrabold resize-none dark:bg-input/0 text-right")}
-                                autoFocus
-                                value={data.amount}
-                                onChange={(e) => setData("amount", parseFloat(e.target.value))}
-                                required
-                                type="number"
-                            />
+                                    "flex items-center"
+                                )
+                            }>
+                                <NumberInput
+                                    value={data.amount}
+                                    className={cn(
+                                        isEqual(data.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600",
+                                        "border-none shadow-none focus-visible:ring-0 text-4xl font-extrabold resize-none dark:bg-input/0 text-right")}
+                                    autoFocus
+                                    onChange={(value: number) => setData("amount", value)}
+                                    required
+                                />
+                            </div>
                             <InputError message={errors.amount}/>
                         </div>
                         <div className="grid gap-3">
@@ -168,7 +178,6 @@ export default function CreateTransactionFormSheet() {
                                 </>   
                             )
                         }
-                        {/* @todo create a CategorySelect component */}
                         <div className="grid gap-3">
                             <Label htmlFor="sheet-demo-name">Note</Label>
                             <Textarea

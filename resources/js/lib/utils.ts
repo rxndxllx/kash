@@ -1,23 +1,41 @@
-import { twMerge } from "tailwind-merge";
-import { type ClassValue, clsx } from "clsx";
 import { Currency } from "@/lib/enums";
 import { debounce, isEmpty } from "lodash";
+import { REGEX } from "@/lib/constants";
+import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from "clsx";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-export function formatAmount(value: number, currency: Currency): string {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency,
+export function formatAmount(value: number, currency?: Currency): string {
+    const config: Intl.NumberFormatOptions = {
+        style: "decimal",
         maximumFractionDigits: 2,
-    }).format(value);
+    };
+
+    if (currency) {
+        config.style = "currency";
+        config.currency = currency;
+    }
+
+    return new Intl.NumberFormat("en", config).format(value);
+}
+
+/**
+ * Sanitizes and converts an amount string into float.
+ * Returns 0 if the input is an invalid number.
+ */
+export function amountToFloat(value: string): number {
+    const str = value.replace(REGEX.INVALID_NUMERIC_CHAR, "");
+    const parsed = parseFloat(str);
+
+    return isNaN(parsed) ? 0 : parsed;
 }
 
 export function formatDateToFriendly(value: string): string
 {
-    const date = new Date(value.replace(" ", "T")); // Convert to ISO format
+    const date = new Date(value.replace(" ", "T"));
 
     const formatted = new Intl.DateTimeFormat("en", {
         year: "numeric",
