@@ -131,6 +131,7 @@ export default function CreateTransactionFormSheet() {
                                             required
                                             value={data.from_account_id}
                                             onValueChange={(value) => setData("from_account_id", value)}
+                                            showBalance
                                         />
                                         <InputError message={errors.from_account_id}/>
                                     </div>
@@ -140,6 +141,7 @@ export default function CreateTransactionFormSheet() {
                                             required
                                             value={data.to_account_id}
                                             onValueChange={(value) => setData("to_account_id", value)}
+                                            showBalance
                                         />
                                         <InputError message={errors.to_account_id}/>
                                     </div>
@@ -163,6 +165,7 @@ export default function CreateTransactionFormSheet() {
                                             required
                                             value={data.account_id}
                                             onValueChange={(value) => setData("account_id", value)}
+                                            showBalance
                                         />
                                         <InputError message={errors.account_id}/>
                                     </div>

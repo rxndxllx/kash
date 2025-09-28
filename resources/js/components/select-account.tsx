@@ -1,10 +1,21 @@
 import { Account } from "@/types/models";
 import { ACCOUNT_TYPE_ICON_MAP } from "@/lib/constants";
+import { formatAmount } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { SelectProps } from "@radix-ui/react-select";
 import { useEffect, useState } from "react";
 
-export default function SelectAccount({ value, onValueChange, disabled, className, readableValue = false, ...props }: SelectProps & { readableValue?: boolean, className?: string }) {
+type SelectAccountProps = SelectProps & { showBalance?: boolean; readableValue?: boolean; className?: string; };
+
+export default function SelectAccount({
+    value,
+    onValueChange,
+    disabled,
+    className,
+    showBalance = false,
+    readableValue = false,
+    ...props
+}: SelectAccountProps) {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -53,7 +64,9 @@ export default function SelectAccount({ value, onValueChange, disabled, classNam
                         >
                             <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
                             <p className="ml-0.5">{account.name}
-                                <span className="ml-2 text-muted-foreground text-xs">{account.currency}</span>
+                                { showBalance && (
+                                    <span className="ml-2 text-muted-foreground text-xs">{formatAmount(account.balance, account.currency)}</span>
+                                )}
                             </p>
                         </SelectItem>
                     )
