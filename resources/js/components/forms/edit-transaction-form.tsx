@@ -9,14 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Transaction } from "@/types/models";
 import { TRANSACTION_TYPE_COLOR_MAP } from "@/lib/constants";
-import { TransactionType } from "@/lib/enums";
+import { Currency, TransactionType } from "@/lib/enums";
 import { useForm } from "@inertiajs/react";
 import InputError from "@/components/input-error";
 import NumberInput from "@/components/number-input";
 import SelectAccount from "@/components/select-account";
 import SelectCategory from "@/components/select-category";
+import SelectCurrency from "../select-currency";
 
 type CreateTransactionForm = {
+    currency: Currency;
     note: string;
     transacted_at: string;
     amount: number;
@@ -36,6 +38,7 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
     const [open, setOpen] = useState(false);
 
     const { data, setData, put, errors, processing, transform } = useForm<Required<CreateTransactionForm>>({
+            currency: transaction.account.currency,
             note: transaction.note ?? "",
             transacted_at: transaction.transacted_at,
             amount: transaction.amount,
@@ -78,10 +81,25 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                 <form onSubmit={submit} className="grid flex-1">
                     <div className="grid flex-1 auto-rows-min gap-6 px-4">
                         <div className="grid gap-3">
-                            <div className={cn(TRANSACTION_TYPE_COLOR_MAP[data.type], "flex items-center")}>
+                            <div className="flex items-center">
+                                <SelectCurrency
+                                    value={data.currency}
+                                    onValueChange={(value) => setData("currency", value as Currency)}
+                                    className="w-[100px] text-xl border-none shadow-none"
+                                    symbolMode
+                                />
                                 <NumberInput
                                     value={data.amount}
-                                    className="border-none shadow-none focus-visible:ring-0 text-4xl font-extrabold resize-none dark:bg-input/0 text-right"
+                                    className={
+                                        cn(
+                                            TRANSACTION_TYPE_COLOR_MAP[data.type],
+                                            /**
+                                             * @todo Fix the length checking here. It should be based on amount and not string length.
+                                             */
+                                            data.amount.toString().length >= 10 ? "text-3xl" : "text-4xl",
+                                            "border-none shadow-none focus-visible:ring-0 font-extrabold resize-none dark:bg-input/0 text-right"
+                                        )
+                                    }
                                     autoFocus
                                     onChange={(value: number) => setData("amount", value)}
                                     required

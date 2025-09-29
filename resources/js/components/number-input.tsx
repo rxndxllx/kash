@@ -25,7 +25,10 @@ export default function NumberInput({ value, onChange, ...props }: Omit<InputPro
             return;
         }
 
-        if (!REGEX.POSITIVE_DECIMAL.test(sanitized)) {
+        /**
+         * @todo Fix the length checking here. It should be based on amount and not string length.
+         */
+        if (!REGEX.POSITIVE_DECIMAL.test(sanitized) || sanitized.length > 12) {
             return;
         }
 

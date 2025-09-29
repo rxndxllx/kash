@@ -6,8 +6,10 @@ namespace App\Http\Controllers\Data;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateAccountRequest;
+use App\Http\Requests\DataAccountRequest;
 use App\Http\Resources\AccountResource;
 use App\Models\Account;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class DataAccountController extends Controller
@@ -15,9 +17,17 @@ class DataAccountController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(DataAccountRequest $request)
     {
-        return AccountResource::collection($request->user()->accounts);
+        $filters = $request->safe();
+
+        $accounts = $request->user()->accounts()
+            ->when(
+                $filters->currency,
+                fn (Builder $q, string $currency) => $q->whereCurrency($currency)
+            );
+
+        return AccountResource::collection($accounts->get());
     }
 
     /**

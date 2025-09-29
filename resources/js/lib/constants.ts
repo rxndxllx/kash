@@ -32,6 +32,23 @@ export const CURRENCY_COUNTRY_CODE_MAP = {
     [Currency.USD]: "US",
 };
 
+export const CURRENCY_SYMBOL_MAP = {
+  [Currency.USD]: "$",
+//   [Currency.EUR]: "€",
+//   [Currency.JPY]: "¥",
+//   [Currency.GBP]: "£",
+//   [Currency.AUD]: "$", // Australian Dollar
+//   [Currency.CAD]: "$", // Canadian Dollar
+//   [Currency.CNY]: "¥", // Chinese Yuan
+//   [Currency.SGD]: "$", // Singapore Dollar
+//   [Currency.MYR]: "RM",
+//   [Currency.IDR]: "Rp",
+//   [Currency.THB]: "฿",
+  [Currency.PHP]: "₱",
+//   [Currency.VND]: "₫",
+} as const;
+
+
 export const TRANSACTION_TYPE_COLOR_MAP = {
     [TransactionType.EXPENSE]: "text-red-600",
     [TransactionType.INCOME]: "text-green-600",
