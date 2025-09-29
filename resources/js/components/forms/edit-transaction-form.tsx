@@ -8,6 +8,7 @@ import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle }
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Transaction } from "@/types/models";
+import { TRANSACTION_TYPE_COLOR_MAP } from "@/lib/constants";
 import { TransactionType } from "@/lib/enums";
 import { useForm } from "@inertiajs/react";
 import InputError from "@/components/input-error";
@@ -77,17 +78,10 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                 <form onSubmit={submit} className="grid flex-1">
                     <div className="grid flex-1 auto-rows-min gap-6 px-4">
                         <div className="grid gap-3">
-                            <div className={
-                                cn(
-                                    isEqual(data.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600",
-                                    "flex items-center"
-                                )
-                            }>
+                            <div className={cn(TRANSACTION_TYPE_COLOR_MAP[data.type], "flex items-center")}>
                                 <NumberInput
                                     value={data.amount}
-                                    className={cn(
-                                        isEqual(data.type, TransactionType.EXPENSE) ? "text-red-600" : "text-green-600",
-                                        "border-none shadow-none focus-visible:ring-0 text-4xl font-extrabold resize-none dark:bg-input/0 text-right")}
+                                    className="border-none shadow-none focus-visible:ring-0 text-4xl font-extrabold resize-none dark:bg-input/0 text-right"
                                     autoFocus
                                     onChange={(value: number) => setData("amount", value)}
                                     required

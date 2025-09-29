@@ -24,10 +24,10 @@ export default function DataTable<T>({ table, data, filters, className }: { tabl
                     <DataTableFilters filters={filters} tableData={data} />
                 </div>
             )}
-            <div className={cn("border rounded-xl h-full overflow-y-scroll", className)}>
+            <div className={cn("border rounded-xl h-full overflow-y-scroll bg-card", className)}>
                 <div className="w-full max-h-72 p-4 pt-0">
                     <Table>
-                        <TableHeader className="sticky top-0 p-4">
+                        <TableHeader className="sticky top-0 p-4 bg-card">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header) => {

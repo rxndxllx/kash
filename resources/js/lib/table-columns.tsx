@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPE_ICON_MAP } from "@/lib/constants";
+import { ACCOUNT_TYPE_ICON_MAP, TRANSACTION_TYPE_COLOR_MAP } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -130,17 +130,11 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
         accessorKey: "amount",
         header: "Amount",
         cell: ({ row }) => {
-            const textColor = isEqual(row.original.type, TransactionType.EXPENSE)
-                ? "text-red-600"
-                : isEqual(row.original.type, TransactionType.INCOME)
-                    ? "text-green-600"
-                    : "";
-
              const isDebit = isEqual(row.original.type, TransactionType.EXPENSE)
                 || isEqual(row.original.account.id, row.original.transfer_details?.from_account.id);
 
             return (
-                <p className={textColor}>
+                <p className={TRANSACTION_TYPE_COLOR_MAP[row.original.type]}>
                     {isDebit ? "-" : "+"}{formatAmount(row.getValue("amount"), row.original.account.currency)}
                 </p>
         )}
@@ -226,17 +220,11 @@ export const DASHBOARD_TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
         accessorKey: "amount",
         header: "Amount",
         cell: ({ row }) => {
-            const textColor = isEqual(row.original.type, TransactionType.EXPENSE)
-                ? "text-red-600"
-                : isEqual(row.original.type, TransactionType.INCOME)
-                    ? "text-green-600"
-                    : "";
-
              const isDebit = isEqual(row.original.type, TransactionType.EXPENSE)
                 || isEqual(row.original.account.id, row.original.transfer_details?.from_account.id);
 
             return (
-                <p className={textColor}>
+                <p className={TRANSACTION_TYPE_COLOR_MAP[row.original.type]}>
                     {isDebit ? "-" : "+"}{formatAmount(row.getValue("amount"), row.original.account.currency)}
                 </p>
         )}

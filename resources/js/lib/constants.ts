@@ -1,4 +1,4 @@
-import { AccountType, Currency } from "@/lib/enums";
+import { AccountType, Currency, TransactionType } from "@/lib/enums";
 import { Banknote, Landmark, PiggyBank, WalletMinimal } from "lucide-react";
 
 export const REGEX = {
@@ -31,3 +31,9 @@ export const CURRENCY_COUNTRY_CODE_MAP = {
     [Currency.PHP]: "PH",
     [Currency.USD]: "US",
 };
+
+export const TRANSACTION_TYPE_COLOR_MAP = {
+    [TransactionType.EXPENSE]: "text-red-600",
+    [TransactionType.INCOME]: "text-green-600",
+    [TransactionType.TRANSFER]: "",
+}
