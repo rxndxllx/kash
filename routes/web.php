@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get("/", fn () => redirect()->route("login"))->name("home");
 
 Route::middleware(["auth", "verified"])->group(function () {
+    Route::get("onboarding", [OnboardingController::class, "index"])->name("onboarding");
+    Route::post("onboarding/{step}/validate", [OnboardingController::class, "validate"])->name("onboarding.validate");
+    Route::post("onboarding/complete", [OnboardingController::class, "complete"])->name("onboarding.complete");
+
     Route::get("dashboard", [DashboardController::class, "index"])->name("dashboard");
 
     Route::get("accounts", [AccountController::class, "index"])->name("accounts");
