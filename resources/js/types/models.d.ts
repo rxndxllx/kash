@@ -6,8 +6,11 @@ export interface User {
     last_name: string;
     full_name: string;
     email: string;
-    avatar?: string;
     email_verified_at: string | null;
+    gender: string;
+    birthdate: string;
+    country: string;
+    base_currency: Currency;
     created_at: string;
     updated_at: string;
 }
