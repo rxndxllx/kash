@@ -1,33 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { CircleFadingPlus } from "lucide-react";
-import { CURRENCY_COUNTRY_CODE_MAP } from "@/lib/constants";
 import { Currency, AccountType } from "@/lib/enums";
 import { FormEventHandler } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { startCase } from "lodash";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { toUpper, startCase } from "lodash";
 import { useForm } from "@inertiajs/react";
-import Flag from "@/components/flag";
 import InputError from "@/components/input-error";
 import NumberInput from "@/components/number-input";
+import SelectCurrency from "@/components/select-currency";
+import useAuth from "@/hooks/use-auth";
 
 type CreateAccountForm = {
     name: string;
     balance: number;
-    currency: Currency | "";
+    currency: Currency;
     type: AccountType | "";
 };
 
 type CreateAccountFormSheetProps = { open: boolean; setOpen: (open: boolean) => void };
 
 export default function CreateAccountFormSheet({ open, setOpen }: CreateAccountFormSheetProps) {
+    const user = useAuth();
     const { data, setData, post, errors, reset, processing } = useForm<Required<CreateAccountForm>>({
             name: "",
             balance: 0,
-            currency: "",
+            currency: user.base_currency,
             type: "",
         });
     
@@ -81,22 +82,11 @@ export default function CreateAccountFormSheet({ open, setOpen }: CreateAccountF
                         </div>
                         <div className="grid gap-3">
                             <Label>Currency</Label>
-                            <Select
+                            <SelectCurrency
                                 value={data.currency}
                                 onValueChange={(value) => setData("currency", value as Currency)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Currency" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {Object.values(Currency).map((currency) =>
-                                        <SelectItem value={currency} key={currency}>
-                                            <Flag countryCode={CURRENCY_COUNTRY_CODE_MAP[currency]} />
-                                            {toUpper(currency)}
-                                        </SelectItem>)}
-                                </SelectContent>
-                            </Select>
+                                className="w-full"
+                            />
                             <InputError message={errors.currency}/>
                         </div>
                         <div className="grid gap-3">

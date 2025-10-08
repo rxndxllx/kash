@@ -15,7 +15,8 @@ import InputError from "@/components/input-error";
 import NumberInput from "@/components/number-input";
 import SelectAccount from "@/components/select-account";
 import SelectCategory from "@/components/select-category";
-import SelectCurrency from "../select-currency";
+import SelectCurrency from "@/components/select-currency";
+import useAuth from "@/hooks/use-auth";
 
 type CreateTransactionForm = {
     currency: Currency;
@@ -31,8 +32,9 @@ type CreateTransactionForm = {
 };
 
 export default function CreateTransactionFormSheet({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void; }) {
+    const user = useAuth();
     const { data, setData, post, errors, reset, processing, transform } = useForm<Required<CreateTransactionForm>>({
-            currency: Currency.USD,
+            currency: user.base_currency,
             note: "",
             transacted_at: "",
             amount: 0,

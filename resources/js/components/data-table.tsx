@@ -4,13 +4,14 @@ import { cn } from "@/lib/utils";
 import { flexRender, Table as ReactTable } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { isEmpty, isEqual } from "lodash";
+import { isEmpty, isEqual, isFunction } from "lodash";
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { router, useForm } from "@inertiajs/react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { type Paginated } from "@/types/models";
 import { type TableFilter } from "@/types";
+import useAuth from "@/hooks/use-auth";
 
 /**
  * @todo
@@ -91,6 +92,7 @@ export default function DataTable<T>({ table, data, filters, className }: { tabl
  * 1. Make this responsive
  */
 export function DataTableFilters<T>({ tableData, filters }: { tableData?: Paginated<T>, filters?: TableFilter[] }) {
+    const user = useAuth();
     const [isFiltering, setIsFiltering] = useState(false);
 
     const params = new URLSearchParams(window.location.search);
@@ -100,7 +102,10 @@ export function DataTableFilters<T>({ tableData, filters }: { tableData?: Pagina
      * 1. filters property should be REQUIRED
      */
     const defaultValues = filters?.reduce<Record<string, string>>(
-        (acc, { key, defaultValue }) => ({ ...acc, [key]: params.get(key) ?? defaultValue ?? "" }),
+        (acc, { key, defaultValue }) => ({
+            ...acc,
+            [key]: params.get(key) ?? (isFunction(defaultValue) ? defaultValue({ user }) : defaultValue) ?? ""
+        }),
         tableData ? { page: "1" } : {}
     ) ?? {};
 

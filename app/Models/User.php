@@ -26,6 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
         "birthdate",
         "country",
         "base_currency",
+        "profile_picture",
 
     ];
 

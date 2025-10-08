@@ -1,4 +1,4 @@
-import { AccountType, Currency, TransactionType } from "@/lib/enums";
+import { AccountType, TransactionType } from "@/lib/enums";
 import { startCase } from "lodash";
 import { TableFilter } from "@/types";
 import dayjs from "dayjs";
@@ -94,7 +94,7 @@ export const DASHBOARD_FILTERS: TableFilter[] = [
                 onValueChange={(value) => handleApplyFilter("currency", value)}
             />
         ),
-        defaultValue: Currency.USD,
+        defaultValue: ({ user }) => user.base_currency,
     },
     {
         type: "select",

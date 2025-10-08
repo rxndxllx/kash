@@ -11,6 +11,7 @@ export interface User {
     birthdate: string;
     country: string;
     base_currency: Currency;
+    profile_picture: string;
     created_at: string;
     updated_at: string;
 }
@@ -64,7 +65,7 @@ interface Resource<T> {
     data: T[];
 }
 
-interface Paginated<T> extends Resource<T> {
+export interface Paginated<T> extends Resource<T> {
     links: {
         first: string;
         last: string;

@@ -1,6 +1,6 @@
 import { JSX } from "react";
 import { LucideIcon } from "lucide-react";
-import { User } from "@types/models";
+import { User } from "@/types/models";
 import type { Config } from "ziggy-js";
 
 export interface Auth {
@@ -38,7 +38,7 @@ export interface SharedData {
 
 export interface BaseTableFilter {
     key: string;
-    defaultValue?: string;
+    defaultValue?: string|((props: { user: User; }) => string);
 }
 
 interface SelectTableFilter extends BaseTableFilter {
@@ -48,7 +48,6 @@ interface SelectTableFilter extends BaseTableFilter {
         title: string;
         value: string;
     }[];
-    defaultValue?: string;
 }
 
 interface SearchBarTableFilter extends BaseTableFilter {

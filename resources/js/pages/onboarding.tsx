@@ -124,7 +124,7 @@ export default function Onboarding() {
                         <>
                             <div className="flex flex-col gap-3 items-center">
                                 <Avatar className="h-30 w-30 overflow-hidden rounded-full">
-                                    <AvatarImage src={auth.user.avatar} alt={auth.user.full_name} />
+                                    <AvatarImage src={auth.user.profile_picture} alt={auth.user.full_name} />
                                     <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white text-4xl">
                                         {getInitials(auth.user.full_name)}
                                     </AvatarFallback>
