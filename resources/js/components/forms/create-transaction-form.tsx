@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { CircleFadingPlus } from "lucide-react";
 import { cn, parseIntOrSelf } from "@/lib/utils";
+import { Currency, TransactionType } from "@/lib/enums";
+import { format } from "date-fns";
 import { FormEventHandler } from "react";
 import { isEqual } from "lodash";
 import { Label } from "@/components/ui/label";
@@ -9,8 +11,8 @@ import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, 
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { TRANSACTION_TYPE_COLOR_MAP } from "@/lib/constants";
-import { Currency, TransactionType } from "@/lib/enums";
 import { useForm } from "@inertiajs/react";
+import DatePicker from "@/components/datepicker";
 import InputError from "@/components/input-error";
 import NumberInput from "@/components/number-input";
 import SelectAccount from "@/components/select-account";
@@ -36,7 +38,7 @@ export default function CreateTransactionFormSheet({ open, setOpen }: { open: bo
     const { data, setData, post, errors, reset, processing, transform } = useForm<Required<CreateTransactionForm>>({
             currency: user.base_currency,
             note: "",
-            transacted_at: "",
+            transacted_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
             amount: 0,
             account_id: "",
             from_account_id: "",
@@ -199,6 +201,15 @@ export default function CreateTransactionFormSheet({ open, setOpen }: { open: bo
                                 </>   
                             )
                         }
+                        <div className="grid gap-3">
+                            <Label htmlFor="note">Transaction Date</Label>
+                            <DatePicker
+                                value={data.transacted_at}
+                                onValueChange={(value) => setData("transacted_at", value)}
+                                withTime
+                            />
+                            <InputError message={errors.note}/>
+                        </div>
                         <div className="grid gap-3">
                             <Label htmlFor="note">Note</Label>
                             <Textarea
