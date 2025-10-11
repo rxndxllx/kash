@@ -40,8 +40,8 @@ class CreateTransactionRequest extends FormRequest
             "from_account_id" => [
                 "bail",
                 "required_if:type,".TransactionType::TRANSFER->value,
-                "exists:accounts,id",
                 "nullable",
+                "exists:accounts,id",
             ],
             "to_account_id" => [
                 "bail",
@@ -53,7 +53,7 @@ class CreateTransactionRequest extends FormRequest
             "transfer_fee" => ["bail", "numeric", "gte:0"],
             "amount" => ["bail", "required", "gt:0", "numeric"],
             "type" => ["bail", "required", Rule::enum(TransactionType::class)],
-            "transacted_at" => ["bail", "sometimes", "nullable", "date"],
+            "transacted_at" => ["bail", "required", "date"],
             "note" => ["bail", "nullable", "string", "max:255"],
         ];
     }

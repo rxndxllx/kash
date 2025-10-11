@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\DTO\CreateTransactionData;
 use App\Enums\TransactionType;
 use App\Http\Requests\CreateTransactionRequest;
 use App\Http\Requests\EditTransactionRequest;
@@ -12,7 +13,9 @@ use App\Http\Resources\TransactionResource;
 use App\Jobs\RecalculateRunningBalances;
 use App\Models\Transaction;
 use App\Services\TransactionService;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
 class TransactionController extends Controller
@@ -56,11 +59,6 @@ class TransactionController extends Controller
         ]);
     }
 
-    /**
-     * @todo
-     * 1. Credit/debit the transaction account
-     * 2. Track running balance per transaction
-     */
     public function store(CreateTransactionRequest $request)
     {
         $inputs = $request->safe();
@@ -68,33 +66,24 @@ class TransactionController extends Controller
         $type = TransactionType::from($inputs->type);
         $user = $request->user();
 
-        $amount = $inputs->amount;
-        $note = $inputs->note;
+        $data = new CreateTransactionData(
+            $user,
+            $request->from_account ?? $request->account,
+            $request->to_account,
+            $inputs->amount,
+            Carbon::parse($inputs->transacted_at),
+            $type,
+            $inputs->category_id,
+            $inputs->note,
+            $inputs->transfer_fee,
+        );
 
-        if ($type === TransactionType::TRANSFER) {
-            $this->transaction_service->createTransfer(
-                $user,
-                $request->from_account,
-                $request->to_account,
-                $amount,
-                $note,
-                $inputs->transfer_fee,
-            );
-        } else {
-            $method = "createExpense";
-
-            if ($type === TransactionType::INCOME) {
-                $method = "createIncome";
-            }
-
-            $this->transaction_service->$method(
-                $user,
-                $request->account,
-                $inputs->category_id,
-                $amount,
-                $note
-            );
-        }
+        match ($type) {
+            TransactionType::EXPENSE => $this->transaction_service->createExpense($data),
+            TransactionType::INCOME => $this->transaction_service->createIncome($data),
+            TransactionType::TRANSFER => $this->transaction_service->createTransfer($data),
+            default => throw new Exception("Unsupported transaction.")
+        };
 
         return back();
     }

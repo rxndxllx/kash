@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 class Account extends Model
 {
@@ -71,5 +72,27 @@ class Account extends Model
     {
         $this->current_balance += $amount;
         $this->save();
+    }
+
+    public function isTransactionDateLatest(Carbon $transacted_at): bool
+    {
+        return !$this->transactions()->where("transacted_at", ">", $transacted_at)->exists();
+    }
+
+    public function getTransactionBeforeDatetime(Carbon $transacted_at): ?Transaction
+    {
+        return $this->transactions()
+            ->where("transacted_at", "<", $transacted_at)
+            ->orderByDesc("transacted_at")
+            ->orderByDesc("id")
+            ->first();
+    }
+
+    public function getLatestTransaction(): ?Transaction
+    {
+        return $this->transactions()
+            ->orderByDesc("transacted_at")
+            ->orderByDesc("id")
+            ->first();
     }
 }

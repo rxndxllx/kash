@@ -4,106 +4,185 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\DTO\CreateTransactionData;
+use App\DTO\CreateTransactionResult;
 use App\Enums\TransactionType;
+use App\Jobs\RecalculateRunningBalances;
 use App\Models\Account;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\Transfer;
 use App\Models\User;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
-    public function createExpense(
-        User $user,
-        Account $account,
-        int $category_id,
-        float $amount,
-        ?string $note,
-    ) {
-        $account->debit($amount);
-
-        Transaction::create([
-            "user_id" => $user->id,
-            "account_id" => $account->id,
-            "category_id" => $category_id,
-            "amount" => $amount,
-            "type" => TransactionType::EXPENSE,
-            "transacted_at" => now(),
-            "note" => $note,
-            "running_balance" => $account->current_balance,
-        ]);
-    }
-
-    public function createIncome(
-        User $user,
-        Account $account,
-        int $category_id,
-        float $amount,
-        ?string $note,
-    ) {
-        $account->credit($amount);
-
-        Transaction::create([
-            "user_id" => $user->id,
-            "account_id" => $account->id,
-            "category_id" => $category_id,
-            "amount" => $amount,
-            "type" => TransactionType::INCOME,
-            "transacted_at" => now(),
-            "note" => $note,
-            "running_balance" => $account->current_balance,
-        ]);
-    }
-
-    public function createTransfer(
-        User $user,
-        Account $from_account,
-        Account $to_account,
-        float $amount,
-        ?string $note,
-        float $transfer_fee,
-    ) {
-        $from_account->debit($amount);
-        $to_account->credit($amount);
-
-        $transfer = Transfer::create([
-            "from_account_id" => $from_account->id,
-            "to_account_id" => $to_account->id,
-        ]);
-
-        Transaction::create([
-            "user_id" => $user->id,
-            "account_id" => $from_account->id,
-            "amount" => $amount,
-            "type" => TransactionType::TRANSFER,
-            "transacted_at" => now(),
-            "note" => $note,
-            "running_balance" => $from_account->current_balance,
-            "transfer_id" => $transfer->id,
-        ]);
-
-        Transaction::create([
-            "user_id" => $user->id,
-            "account_id" => $to_account->id,
-            "amount" => $amount,
-            "type" => TransactionType::TRANSFER,
-            "transacted_at" => now(),
-            "note" => $note,
-            "running_balance" => $to_account->current_balance,
-            "transfer_id" => $transfer->id,
-        ]);
-
-        if ($transfer_fee > 0) {
-            $from_account->debit($transfer_fee);
-
-            $this->createExpense(
-                $user,
-                $from_account,
-                Category::transferFee()->id,
-                $transfer_fee,
-                $note
+    public function createExpense(CreateTransactionData $data)
+    {
+        DB::transaction(function () use ($data) {
+            $result = $this->createTransaction(
+                $data->user,
+                $data->source_account,
+                $data->amount,
+                $data->transacted_at,
+                $data->type,
+                $data->note,
+                $data->category_id,
             );
+
+            $data->source_account->debit($data->amount);
+
+            if (!$result->is_latest) {
+                RecalculateRunningBalances::dispatch($result->transaction, $data->amount)->afterCommit();
+            }
+        });
+
+    }
+
+    public function createIncome(CreateTransactionData $data)
+    {
+        DB::transaction(function () use ($data) {
+            $result = $this->createTransaction(
+                $data->user,
+                $data->source_account,
+                $data->amount,
+                $data->transacted_at,
+                $data->type,
+                $data->note,
+                $data->category_id,
+            );
+
+            $data->source_account->credit($data->amount);
+
+            if (!$result->is_latest) {
+                RecalculateRunningBalances::dispatch($result->transaction, $data->amount)->afterCommit();
+            }
+        });
+    }
+
+    public function createTransfer(CreateTransactionData $data): void
+    {
+        DB::transaction(function () use ($data) {
+            $transfer = Transfer::create([
+                "from_account_id" => $data->source_account->id,
+                "to_account_id" => $data->destination_account->id,
+            ]);
+
+            $this->createTransferDebit($data, $transfer);
+            $this->createTransferCredit($data, $transfer);
+        });
+    }
+
+    private function createTransferDebit(CreateTransactionData $data, Transfer $transfer): void
+    {
+        $from_account = $data->source_account;
+
+        $debit_result = $this->createTransaction(
+            $data->user,
+            $from_account,
+            $data->amount,
+            $data->transacted_at,
+            $data->type,
+            $data->note,
+            null,
+            $transfer,
+        );
+
+        $delta = $data->amount + $data->transfer_fee;
+        $from_account->debit($delta);
+
+        $transfer_fee_details = [
+            "user_id" => $data->user->id,
+            "account_id" => $from_account->id,
+            "amount" => $data->transfer_fee,
+            "type" => TransactionType::EXPENSE,
+            "transacted_at" => $data->transacted_at,
+            "note" => $data->note,
+            "running_balance" => $debit_result->transaction->running_balance - $data->transfer_fee,
+            "transfer_id" => $transfer->id,
+            "category_id" => Category::transferFee()->id,
+        ];
+
+        /**
+         * If recalculation is needed, the job must complete first
+         * before saving $transfer_fee, otherwise it will also be
+         * included in the recalculation and debit the account twice.
+         */
+        if (!$debit_result->is_latest) {
+            RecalculateRunningBalances::dispatch($debit_result->transaction, $delta)
+                ->afterCommit()
+                ->chain([
+                    function () use ($data, $transfer_fee_details) {
+                        if ($data->transfer_fee > 0) {
+                            Transaction::create($transfer_fee_details);
+                        }
+                    },
+                ]);
+        } elseif ($data->transfer_fee > 0) {
+            Transaction::create($transfer_fee_details);
         }
+    }
+
+    private function createTransferCredit(CreateTransactionData $data, Transfer $transfer): void
+    {
+        $to_account = $data->destination_account;
+
+        $credit_result = $this->createTransaction(
+            $data->user,
+            $to_account,
+            $data->amount,
+            $data->transacted_at,
+            TransactionType::TRANSFER,
+            $data->note,
+            null,
+            $transfer,
+        );
+
+        $to_account->credit($data->amount);
+
+        if (!$credit_result->is_latest) {
+            RecalculateRunningBalances::dispatch($credit_result->transaction, $data->amount)->afterCommit();
+        }
+    }
+
+    private function createTransaction(
+        User $user,
+        Account $account,
+        float $amount,
+        Carbon $transacted_at,
+        TransactionType $type,
+        ?string $note,
+        ?int $category_id,
+        ?Transfer $transfer = null,
+    ): CreateTransactionResult {
+        $latest = $account->isTransactionDateLatest($transacted_at);
+        $is_debit = $type === TransactionType::EXPENSE || $transfer?->from_account_id === $account->id;
+        $running_balance = $is_debit
+            ? $account->current_balance - $amount
+            : $account->current_balance + $amount;
+
+        if (!$latest) {
+            $previous_transaction = $account->getTransactionBeforeDatetime($transacted_at);
+            $previous_running_balance = $previous_transaction?->running_balance ?? $account->initial_balance;
+            $running_balance = $is_debit
+                ? $previous_running_balance - $amount
+                : $previous_running_balance + $amount;
+        }
+
+        $transaction = Transaction::create([
+            "user_id" => $user->id,
+            "account_id" => $account->id,
+            "amount" => $amount,
+            "type" => $type,
+            "transacted_at" => $transacted_at,
+            "note" => $note,
+            "running_balance" => $running_balance,
+            "transfer_id" => $transfer?->id,
+            "category_id" => $category_id,
+        ]);
+
+        return new CreateTransactionResult($transaction, $latest);
     }
 
     public function updateTransaction(

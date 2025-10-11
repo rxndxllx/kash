@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class RecalculateRunningBalances implements ShouldQueue
 {
@@ -17,9 +17,12 @@ class RecalculateRunningBalances implements ShouldQueue
 
     private Transaction $transaction;
 
-    public function __construct(Transaction $transaction)
+    private float $delta;
+
+    public function __construct(Transaction $transaction, float $delta)
     {
         $this->transaction = $transaction;
+        $this->delta = $delta;
     }
 
     public function middleware(): array
@@ -27,14 +30,10 @@ class RecalculateRunningBalances implements ShouldQueue
         return [new WithoutOverlapping($this->transaction->account_id)];
     }
 
-    /**
-     * @todo
-     * 1. Fire an event/broadcast to the frontend to signal refresh
-     */
     public function handle(): void
     {
         $transaction = $this->transaction;
-        $running_balance = $transaction->running_balance;
+        $operator = $transaction->isDebit() ? "-" : "+";
 
         Transaction::whereAccountId($transaction->account_id)
             ->where(fn (Builder $q) => $q
@@ -43,20 +42,8 @@ class RecalculateRunningBalances implements ShouldQueue
                     ->where("transacted_at", $transaction->transacted_at)
                     ->where("id", ">", $transaction->id)
                 ))
-            ->orderBy("transacted_at")
-            ->orderBy("id")
-            ->chunkById(100, fn (Collection $chunk) => $chunk->each(
-                function (Transaction $sub) use (&$running_balance) {
-                    $running_balance = $sub->isDebit()
-                        ? $running_balance - $sub->amount
-                        : $running_balance + $sub->amount;
-
-                    $sub->running_balance = $running_balance;
-                    $sub->save();
-                }
-            ));
-
-        $transaction->account->current_balance = $running_balance;
-        $transaction->account->save();
+            ->update([
+                "running_balance" => DB::raw("running_balance {$operator} ({$this->delta})"),
+            ]);
     }
 }
