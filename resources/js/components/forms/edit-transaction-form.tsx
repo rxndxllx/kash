@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn, parseIntOrSelf } from "@/lib/utils";
+import { Currency, TransactionType } from "@/lib/enums";
 import { FormEventHandler, JSX, useState } from "react";
 import { isEqual } from "lodash";
 import { Label } from "@/components/ui/label";
@@ -9,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Transaction } from "@/types/models";
 import { TRANSACTION_TYPE_COLOR_MAP } from "@/lib/constants";
-import { Currency, TransactionType } from "@/lib/enums";
 import { useForm } from "@inertiajs/react";
+import DatePicker from "@/components/datepicker";
 import InputError from "@/components/input-error";
 import NumberInput from "@/components/number-input";
 import SelectAccount from "@/components/select-account";
@@ -191,6 +192,15 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                                 </>   
                             )
                         }
+                        <div className="grid gap-3">
+                            <Label htmlFor="note">Transaction Date</Label>
+                            <DatePicker
+                                value={data.transacted_at}
+                                onValueChange={(value) => setData("transacted_at", value)}
+                                withTime
+                            />
+                            <InputError message={errors.note}/>
+                        </div>
                         <div className="grid gap-3">
                             <Label htmlFor="note">Note</Label>
                             <Textarea

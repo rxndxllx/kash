@@ -10,10 +10,8 @@ use App\Http\Requests\CreateTransactionRequest;
 use App\Http\Requests\EditTransactionRequest;
 use App\Http\Requests\TransactionRequest;
 use App\Http\Resources\TransactionResource;
-use App\Jobs\RecalculateRunningBalances;
 use App\Models\Transaction;
 use App\Services\TransactionService;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -78,33 +76,31 @@ class TransactionController extends Controller
             $inputs->transfer_fee,
         );
 
-        match ($type) {
-            TransactionType::EXPENSE => $this->transaction_service->createExpense($data),
-            TransactionType::INCOME => $this->transaction_service->createIncome($data),
-            TransactionType::TRANSFER => $this->transaction_service->createTransfer($data),
-            default => throw new Exception("Unsupported transaction.")
-        };
+        $this->transaction_service->create($data);
 
         return back();
     }
 
-    /**
-     * @todo
-     * 1. Allow account_id update
-     * 2. Allow transfer_fee update
-     */
     public function update(EditTransactionRequest $request, Transaction $transaction)
     {
-        if ($transaction->type === TransactionType::TRANSFER) {
-            $transaction_pair = $transaction->transferPair();
+        $inputs = $request->safe();
 
-            $this->transaction_service->updateTransaction($transaction_pair, $request->amount, $request->note);
+        $type = TransactionType::from($inputs->type);
+        $user = $request->user();
 
-            RecalculateRunningBalances::dispatch($transaction_pair);
-        }
+        $data = new CreateTransactionData(
+            $user,
+            $request->from_account ?? $request->account,
+            $request->to_account,
+            $inputs->amount,
+            Carbon::parse($inputs->transacted_at),
+            $type,
+            $inputs->category_id,
+            $inputs->note,
+            $inputs->transfer_fee,
+        );
 
-        $this->transaction_service->updateTransaction($transaction, $request->amount, $request->note, $request->category_id);
-        RecalculateRunningBalances::dispatch($transaction);
+        $this->transaction_service->update($data, $transaction);
 
         return back();
     }

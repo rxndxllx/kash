@@ -69,7 +69,7 @@ export default function CreateTransactionFormSheet({ open, setOpen }: { open: bo
                 toast("Transaction created", {
                     closeButton: true,
                     position: "top-center",
-                    description: `Successfully created a new transaction.`
+                    description: `Successfully created a new transaction. You may need to refresh the page for the updated ending balances.`
                 });
             },
         });

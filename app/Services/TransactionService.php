@@ -13,6 +13,7 @@ use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\Transfer;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -185,32 +186,53 @@ class TransactionService
         return new CreateTransactionResult($transaction, $latest);
     }
 
-    public function updateTransaction(
-        Transaction $transaction,
-        float $amount,
-        ?string $note = null,
-        ?int $category_id = null,
-    ) {
-        if (abs($transaction->amount - $amount) > 0.01) {
-            $this->updateTransactionAmount($transaction, $amount);
-        }
-
-        $transaction->category_id = $category_id;
-        $transaction->note = $note;
-        $transaction->save();
+    public function create($data): void
+    {
+        match ($data->type) {
+            TransactionType::EXPENSE => $this->createExpense($data),
+            TransactionType::INCOME => $this->createIncome($data),
+            TransactionType::TRANSFER => $this->createTransfer($data),
+            default => throw new Exception("Unsupported transaction.")
+        };
     }
 
-    private function updateTransactionAmount(Transaction $transaction, float $new_amount)
+    public function update(object $data, Transaction $transaction): void
     {
-        $prev = $transaction->getPreviousTransaction();
-        $prev_running_balance = $prev ? $prev->running_balance : $transaction->account->initial_balance;
+        /**
+         * If any of these details are changed,
+         * delete and recreate the transactions instead
+         * of updating, because these values have major
+         * side effects when changed.
+         */
+        if (
+            $data->type !== $transaction->type
+            || $data->amount !== $transaction->amount
+            || $data->source_account !== $transaction->account_id
+            || $data->transacted_at !== $transaction->transacted_at
+            || $data->transfer_fee !== $transaction->transfer_fee
+        ) {
+            if ($transaction->type === TransactionType::TRANSFER) {
+                $transaction->transfer->delete();
+            } else {
+                $transaction->delete();
+            }
 
-        $transaction->amount = $new_amount;
+            $this->create($data);
 
-        $transaction->running_balance = $transaction->isDebit()
-            ? $prev_running_balance - $transaction->amount
-            : $prev_running_balance + $transaction->amount;
+            return;
+        }
 
-        $transaction->save();
+        /**
+         * If the changes are minor, simply update the fields.
+         */
+        if (
+            $data->note !== $transaction->note
+            || $data->category_id !== $transaction->category_id
+        ) {
+            $transaction->update([
+                "note" => $data->note,
+                "category_id" => $data->category_id,
+            ]);
+        }
     }
 }
