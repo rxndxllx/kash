@@ -16,7 +16,7 @@ import InputError from "@/components/input-error";
 import NumberInput from "@/components/number-input";
 import SelectAccount from "@/components/select-account";
 import SelectCategory from "@/components/select-category";
-import SelectCurrency from "../select-currency";
+import SelectCurrency from "@/components/select-currency";
 
 type CreateTransactionForm = {
     currency: Currency;
@@ -115,7 +115,6 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                                 value={data.type}
                                 className="flex"
                                 onValueChange={(value) => setData("type", value as TransactionType)}
-                                disabled={true}
                             >
                                 <div className="flex items-center gap-3">
                                     <RadioGroupItem value={TransactionType.EXPENSE} id="r1" />
@@ -142,7 +141,6 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                                             required
                                             value={data.from_account_id}
                                             onValueChange={(value) => setData("from_account_id", value)}
-                                            disabled
                                         />
                                         <InputError message={errors.from_account_id}/>
                                     </div>
@@ -152,7 +150,6 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                                             required
                                             value={data.to_account_id}
                                             onValueChange={(value) => setData("to_account_id", value)}
-                                            disabled
                                         />
                                         <InputError message={errors.to_account_id}/>
                                     </div>
@@ -176,7 +173,7 @@ export default function EditTransactionFormSheet({ transaction, trigger }: { tra
                                             required
                                             value={data.account_id}
                                             onValueChange={(value) => setData("account_id", value)}
-                                            disabled
+                                            
                                         />
                                         <InputError message={errors.account_id}/>
                                     </div>

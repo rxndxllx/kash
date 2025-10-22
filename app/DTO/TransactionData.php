@@ -6,10 +6,11 @@ namespace App\DTO;
 
 use App\Enums\TransactionType;
 use App\Models\Account;
+use App\Models\Transaction;
 use App\Models\User;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 
-class CreateTransactionData
+class TransactionData
 {
     public function __construct(
         public User $user,
@@ -21,5 +22,6 @@ class CreateTransactionData
         public ?int $category_id,
         public ?string $note,
         public float $transfer_fee = 0,
+        public ?Transaction $old_transaction = null,
     ) {}
 }

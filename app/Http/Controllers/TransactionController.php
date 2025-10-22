@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\DTO\CreateTransactionData;
+use App\DTO\TransactionData;
 use App\Enums\TransactionType;
 use App\Http\Requests\CreateTransactionRequest;
 use App\Http\Requests\EditTransactionRequest;
@@ -64,7 +64,7 @@ class TransactionController extends Controller
         $type = TransactionType::from($inputs->type);
         $user = $request->user();
 
-        $data = new CreateTransactionData(
+        $data = new TransactionData(
             $user,
             $request->from_account ?? $request->account,
             $request->to_account,
@@ -88,7 +88,7 @@ class TransactionController extends Controller
         $type = TransactionType::from($inputs->type);
         $user = $request->user();
 
-        $data = new CreateTransactionData(
+        $data = new TransactionData(
             $user,
             $request->from_account ?? $request->account,
             $request->to_account,
@@ -98,9 +98,10 @@ class TransactionController extends Controller
             $inputs->category_id,
             $inputs->note,
             $inputs->transfer_fee,
+            $transaction,
         );
 
-        $this->transaction_service->update($data, $transaction);
+        $this->transaction_service->update($data);
 
         return back();
     }

@@ -33,7 +33,6 @@ class RecalculateRunningBalances implements ShouldQueue
     public function handle(): void
     {
         $transaction = $this->transaction;
-        $operator = $transaction->isDebit() ? "-" : "+";
 
         Transaction::whereAccountId($transaction->account_id)
             ->where(fn (Builder $q) => $q
@@ -43,7 +42,7 @@ class RecalculateRunningBalances implements ShouldQueue
                     ->where("id", ">", $transaction->id)
                 ))
             ->update([
-                "running_balance" => DB::raw("running_balance {$operator} ({$this->delta})"),
+                "running_balance" => DB::raw("running_balance + ({$this->delta})"),
             ]);
     }
 }

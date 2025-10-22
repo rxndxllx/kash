@@ -39,14 +39,12 @@ class Transaction extends Model
     protected static function booted(): void
     {
         static::created(function (self $transaction) {
-            $stats = DashboardStats::firstOrNew(
-                [
-                    "user_id" => $transaction->user_id,
-                    "currency" => $transaction->currency,
-                    "month" => $transaction->transacted_at->month,
-                    "year" => $transaction->transacted_at->year,
-                ]
-            );
+            $stats = DashboardStats::firstOrNew([
+                "user_id" => $transaction->user_id,
+                "currency" => $transaction->currency,
+                "month" => $transaction->transacted_at->month,
+                "year" => $transaction->transacted_at->year,
+            ]);
 
             switch ($transaction->type) {
                 case TransactionType::INCOME:
@@ -57,6 +55,48 @@ class Transaction extends Model
                 case TransactionType::EXPENSE:
                     $stats->total_balance -= $transaction->amount;
                     $stats->total_expense += $transaction->amount;
+                    break;
+            }
+
+            $stats->save();
+        });
+
+        /**
+         * Reverse the balances and dashboard statistics
+         */
+        static::deleted(function (Transaction $transaction) {
+            if ($transaction->type === TransactionType::INCOME) {
+                $transaction->account->debit($transaction->amount);
+            } elseif ($transaction->type === TransactionType::EXPENSE) {
+                $transaction->account->credit($transaction->amount);
+            } elseif ($transaction->type === TransactionType::TRANSFER) {
+                $is_debit = $transaction->isDebit();
+                $pair = $transaction->transferPair();
+
+                if ($is_debit) {
+                    $transaction->account->credit($transaction->amount);
+                    $pair->account->debit($transaction->amount);
+                }
+
+                return;
+            }
+
+            $stats = DashboardStats::firstOrNew([
+                "user_id" => $transaction->user_id,
+                "currency" => $transaction->currency,
+                "month" => $transaction->transacted_at->month,
+                "year" => $transaction->transacted_at->year,
+            ]);
+
+            switch ($transaction->type) {
+                case TransactionType::INCOME:
+                    $stats->total_balance -= $transaction->amount;
+                    $stats->total_income -= $transaction->amount;
+                    break;
+
+                case TransactionType::EXPENSE:
+                    $stats->total_balance += $transaction->amount;
+                    $stats->total_expense -= $transaction->amount;
                     break;
             }
 
