@@ -15,9 +15,6 @@ use Inertia\Inertia;
 
 class AccountController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(AccountRequest $request)
     {
         $filters = $request->safe();
@@ -41,17 +38,6 @@ class AccountController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(CreateAccountRequest $request)
     {
         Account::create([
@@ -67,23 +53,9 @@ class AccountController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * @todo
+     * 1. Add a FormRequest to authorize this action.
+     * 2. Add the side effects of edge cases (e.g. changing the balance and currency).
      */
     public function update(Request $request, Account $account): RedirectResponse
     {
@@ -98,10 +70,12 @@ class AccountController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @todo Add a FormRequest to authorize this action.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, Account $account): RedirectResponse
     {
-        //
+        $account->delete();
+
+        return to_route("accounts");
     }
 }

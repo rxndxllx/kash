@@ -15,6 +15,15 @@ class Transfer extends Model
         "to_account_id",
     ];
 
+    protected static function booted(): void
+    {
+        static::updating(function (self $transfer) {
+            if (is_null($transfer->from_account_id) && is_null($transfer->to_account_id)) {
+                $transfer->delete();
+            }
+        });
+    }
+
     public function fromAccount(): BelongsTo
     {
         return $this->belongsTo(Account::class, "from_account_id", "id");

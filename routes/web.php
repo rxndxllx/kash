@@ -20,6 +20,7 @@ Route::middleware(["auth", "verified"])->group(function () {
     Route::get("accounts", [AccountController::class, "index"])->name("accounts");
     Route::post("accounts", [AccountController::class, "store"])->name("create-account");
     Route::put("accounts/{account:id}", [AccountController::class, "update"])->name("edit-account");
+    Route::delete("accounts/{account:id}", [AccountController::class, "destroy"])->name("delete-account");
 
     Route::get("transactions", [TransactionController::class, "index"])->name("transactions");
     Route::post("transactions", [TransactionController::class, "store"])->name("create-transaction");

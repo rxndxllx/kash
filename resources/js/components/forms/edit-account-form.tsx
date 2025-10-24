@@ -2,7 +2,7 @@ import { Account } from "@/types/models";
 import { Button } from "@/components/ui/button";
 import { CircleFadingPlus } from "lucide-react";
 import { Currency, AccountType } from "@/lib/enums";
-import { FormEventHandler, JSX, useState } from "react";
+import { FormEventHandler } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -21,12 +21,16 @@ type EditAccountForm = {
     type: AccountType;
 };
 
+type EditAccountFormSheetProps = {
+    account: Account;
+    open: boolean;
+    setOpen: (open: boolean) => void;
+}
+
 /**
- * @todo
- * 1. Consider reusing the create account form since it is basically the same
+ * @todo Consider reusing the create account form since it is basically the same
  */
-export default function EditAccountFormSheet({ account, trigger }: { account: Account; trigger: JSX.Element }) {
-    const [open, setOpen] = useState(false);
+export default function EditAccountFormSheet({ account, open, setOpen }: EditAccountFormSheetProps) {
 
     const { data, setData, put, errors, processing } = useForm<Required<EditAccountForm>>({
             name: account.name,
@@ -52,7 +56,6 @@ export default function EditAccountFormSheet({ account, trigger }: { account: Ac
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
-            {trigger}
             <SheetContent>
                 <SheetHeader><SheetTitle>Edit Account</SheetTitle></SheetHeader>
                 <form onSubmit={submit} className="grid flex-1">

@@ -1,15 +1,14 @@
 import { ACCOUNT_TYPE_ICON_MAP, TRANSACTION_TYPE_COLOR_MAP } from "@/lib/constants";
+import { AccountsTableActionPanel } from "@/pages/accounts";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatAmount, formatDateToFriendly } from "@/lib/utils";
 import { isEqual } from "lodash";
-import { Link } from "@inertiajs/react";
 import { MoreHorizontal } from "lucide-react";
 import { SheetTrigger } from "@/components/ui/sheet";
 import { TransactionType } from "@/lib/enums";
 import { type Transaction, type Account } from "@/types/models";
-import EditAccountFormSheet from "@/components/forms/edit-account-form";
 import EditTransactionFormSheet from "@/components/forms/edit-transaction-form";
 import Flag from "@/components/flag";
 
@@ -46,34 +45,7 @@ export const ACCOUNTS_TABLE_COLUMNS: ColumnDef<Account>[] = [
     },
     {
         id: "actions",
-        cell: ({ row }) => {
-            return (
-                <EditAccountFormSheet
-                    account={row.original}
-                    trigger={
-                        <DropdownMenu modal={false}>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <span className="sr-only">Open menu</span>
-                                    <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" aria-describedby="">
-                                <SheetTrigger asChild>
-                                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                                </SheetTrigger>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild>
-                                    <Link href={`/transactions?account=${row.original.name}`}>
-                                        View Transactions
-                                    </Link>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    }
-                />
-            )
-        },
+        cell: ({ row }) => <AccountsTableActionPanel account={row.original} />
     },
 ];
 
