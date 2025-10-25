@@ -42,7 +42,7 @@ class DashboardService
     /**
      * Build yearly data for all 12 months, filling missing months with zeros.
      */
-    public function generateYearlyData(Collection $data, Currency $currency, int $year): Collection
+    private function generateYearlyData(Collection $data, Currency $currency, int $year): Collection
     {
         $indexed = $data->keyBy("month");
 
@@ -62,7 +62,7 @@ class DashboardService
     /**
      * Build monthly data for the requested month with default values.
      */
-    public function generateMonthlyData(
+    private function generateMonthlyData(
         ?DashboardStats $data,
         Currency $currency,
         int $month,
