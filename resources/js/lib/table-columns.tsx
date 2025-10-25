@@ -63,19 +63,19 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
 
             if (row.original.transfer_details) {
                 const transferDetails = row.original.transfer_details;
-                const isFrom = isEqual(row.original.account.id, transferDetails.from_account.id);
+                const isFrom = isEqual(row.original.account.id, transferDetails.from_account?.id);
+                const accountName = (isFrom ? transferDetails.to_account?.name : transferDetails.from_account?.name);
 
                 return (
                      <div className="flex gap-2 items-center">
                         <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
-                        {row.original.account.name}{" "}
-                        {
-                            isFrom
-                                ? `→ ${transferDetails.to_account.name}`
-                                : `← ${transferDetails.from_account.name}`
-                        }
+                        <span>
+                            {row.original.account.name}{" "}
+                            {`${isFrom ? "→" : "←"} `}
+                            {accountName ? accountName : <span className="text-muted-foreground">Deleted Account</span>}
+                        </span>
                     </div>
-                )
+                );
             }
 
             return (
@@ -103,7 +103,7 @@ export const TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
         header: "Amount",
         cell: ({ row }) => {
              const isDebit = isEqual(row.original.type, TransactionType.EXPENSE)
-                || isEqual(row.original.account.id, row.original.transfer_details?.from_account.id);
+                || isEqual(row.original.account.id, row.original.transfer_details?.from_account?.id);
 
             return (
                 <p className={TRANSACTION_TYPE_COLOR_MAP[row.original.type]}>
@@ -165,19 +165,19 @@ export const DASHBOARD_TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
 
             if (row.original.transfer_details) {
                 const transferDetails = row.original.transfer_details;
-                const isFrom = isEqual(row.original.account.id, transferDetails.from_account.id);
+                const isFrom = isEqual(row.original.account.id, transferDetails.from_account?.id);
+                const accountName = (isFrom ? transferDetails.to_account?.name : transferDetails.from_account?.name);
 
                 return (
                      <div className="flex gap-2 items-center">
                         <Icon className="bg-sidebar-accent rounded-xl p-1 h-6 w-6"/>
-                        {row.original.account.name}{" "}
-                        {
-                            isFrom
-                                ? `→ ${transferDetails.to_account.name}`
-                                : `← ${transferDetails.from_account.name}`
-                        }
+                        <span>
+                            {row.original.account.name}{" "}
+                            {`${isFrom ? "→" : "←"} `}
+                            {accountName ? accountName : <span className="text-muted-foreground">Deleted Account</span>}
+                        </span>
                     </div>
-                )
+                );
             }
 
             return (
@@ -193,7 +193,7 @@ export const DASHBOARD_TRANSACTIONS_TABLE_COLUMNS: ColumnDef<Transaction>[] = [
         header: "Amount",
         cell: ({ row }) => {
              const isDebit = isEqual(row.original.type, TransactionType.EXPENSE)
-                || isEqual(row.original.account.id, row.original.transfer_details?.from_account.id);
+                || isEqual(row.original.account.id, row.original.transfer_details?.from_account?.id);
 
             return (
                 <p className={TRANSACTION_TYPE_COLOR_MAP[row.original.type]}>
