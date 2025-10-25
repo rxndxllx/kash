@@ -8,70 +8,103 @@ use App\Enums\Currency;
 use App\Enums\TransactionType;
 use App\Models\DashboardStats;
 use App\Models\Transaction;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\ValidatedInput;
 
 class DashboardService
 {
     /**
-     * Build yearly data for all 12 months, filling missing months with zeros.
+     * Generate dashboard data for a user, including yearly stats, monthly stats, and recent transactions.
      *
-     * @param  EloquentCollection<int, DashboardStats>  $data
-     * @return Collection<int, array{month:int, expense:float, income:float}>
+     * @return Collection{
+     *     yearly_data: Collection,
+     *     monthly_data: Collection,
+     *     recent_transactions: Collection<int, Transaction>
+     * }
      */
-    public function generateYearlyData(EloquentCollection $data, ValidatedInput $inputs): Collection
+    public function generateDashboardData(User $user, Currency $currency, int $year, int $month): Collection
+    {
+        $stats = $user->dashboardStats()->where("year", $year)->where("currency", $currency)->get();
+        $monthly_stats = $stats->firstWhere("month", $month);
+
+        return collect([
+            "yearly_data" => $this->generateYearlyData($stats, $currency, $year),
+            "monthly_data" => $this->generateMonthlyData($monthly_stats, $currency, $month, $year, $user),
+            "recent_transactions" => $user->transactions()
+                ->whereCurrency($currency)
+                ->orderByDesc("transacted_at")
+                ->orderByDesc("id")
+                ->paginate(10),
+        ]);
+    }
+
+    /**
+     * Build yearly data for all 12 months, filling missing months with zeros.
+     */
+    public function generateYearlyData(Collection $data, Currency $currency, int $year): Collection
     {
         $indexed = $data->keyBy("month");
 
-        return collect(range(1, 12))->map(function ($month) use ($indexed, $inputs) {
+        return collect()->times(12, function (int $month) use ($indexed, $currency, $year) {
             $stat = $indexed->get($month);
 
             return [
                 "month" => $month,
                 "total_expense" => $stat?->total_expense ?? 0,
                 "total_income" => $stat?->total_income ?? 0,
-                "currency" => $stat?->currency ?? $inputs->currency,
-                "year" => $stat?->year ?? $inputs->year,
+                "currency" => $stat?->currency ?? $currency,
+                "year" => $stat?->year ?? $year,
             ];
         });
     }
 
-    public function generateMonthlyData(?DashboardStats $data, ValidatedInput $inputs): Collection
-    {
+    /**
+     * Build monthly data for the requested month with default values.
+     */
+    public function generateMonthlyData(
+        ?DashboardStats $data,
+        Currency $currency,
+        int $month,
+        int $year,
+        User $user
+    ): Collection {
+        $top_income_categories = $this->getTopCategories(
+            $user,
+            TransactionType::INCOME,
+            $currency,
+            $month,
+            $data?->total_income ?? 0,
+        );
+
+        $top_expense_categories = $this->getTopCategories(
+            $user,
+            TransactionType::EXPENSE,
+            $currency,
+            $month,
+            $data?->total_expense ?? 0,
+        );
+
         return collect([
             "total_balance" => $data?->total_balance ?? 0,
             "total_expense" => $data?->total_expense ?? 0,
             "total_income" => $data?->total_income ?? 0,
-            "currency" => $data?->currency ?? $inputs->currency,
-            "month" => $data?->month ?? $inputs->month,
-            "year" => $data?->year ?? $inputs->year,
+            "currency" => $data?->currency ?? $currency,
+            "month" => $data?->month ?? $month,
+            "year" => $data?->year ?? $year,
             "cash_flow" => $data?->cash_flow ?? 0,
-            "top_incomes" => $this->getTopCategories(
-                TransactionType::INCOME,
-                Currency::from($inputs->currency),
-                (int) $inputs->month,
-                $data?->total_income ?? 0,
-            ),
-            "top_expenses" => $this->getTopCategories(
-                TransactionType::EXPENSE,
-                Currency::from($inputs->currency),
-                (int) $inputs->month,
-                $data?->total_expense ?? 0,
-            ),
+            "top_incomes" => $top_income_categories,
+            "top_expenses" => $top_expense_categories,
         ]);
-
     }
 
     private function getTopCategories(
+        User $user,
         TransactionType $type,
         Currency $currency,
         int $month,
         float $total_amount
     ): Collection {
-        $user = auth()->user();
-
         $transactions = $user->transactions()
             ->with("category:id,title")
             ->select(["category_id", DB::raw("SUM(amount) as total")])
@@ -83,19 +116,27 @@ class DashboardService
             ->limit(3)
             ->get();
 
-        $result = $transactions->map(function (Transaction $transaction) use ($total_amount) {
-            return [
-                "category" => $transaction->category->title,
-                "total_amount" => $transaction->total,
-                "percentage" => $this->computePercentage($transaction->total, $total_amount, 1),
-            ];
-        });
+        $result = $transactions->map(fn (Transaction $transaction) => [
+            "category" => $transaction->category->title,
+            "total_amount" => $transaction->total,
+            "percentage" => computePercentage($transaction->total, $total_amount, 1),
+        ]);
 
         return $result;
     }
 
-    private function computePercentage(float $part, float $whole, int $precision = 0): float
-    {
-        return round(($part / $whole) * 100, $precision);
+    public function forwardRecalculateMonthlyTotalBalance(
+        int $user_id,
+        Currency $currency,
+        int $year,
+        int $month,
+        float $delta
+    ): void {
+        DashboardStats::where("user_id", $user_id)
+            ->where("currency", $currency)
+            ->afterMonth($month, $year)
+            ->update([
+                "total_balance" => DB::raw("total_balance + ({$delta})"),
+            ]);
     }
 }

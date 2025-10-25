@@ -19,7 +19,7 @@ class TransactionService
     public function createExpense(TransactionData $data)
     {
         DB::transaction(function () use ($data) {
-            $result = $this->createTransaction($data);
+            $result = $this->createTransaction($data, true);
 
             $data->source_account->debit($data->amount);
 
@@ -32,7 +32,7 @@ class TransactionService
     public function createIncome(TransactionData $data)
     {
         DB::transaction(function () use ($data) {
-            $result = $this->createTransaction($data);
+            $result = $this->createTransaction($data, false);
 
             $data->source_account->credit($data->amount);
 
@@ -57,12 +57,13 @@ class TransactionService
 
     private function createTransferDebit(TransactionData $data, Transfer $transfer): void
     {
-        $from_account = $data->source_account;
-
         $debit_result = $this->createTransaction(
             $data,
+            true,
             $transfer,
         );
+
+        $from_account = $data->source_account->refresh();
 
         $from_account->debit($data->amount + $data->transfer_fee);
 
@@ -100,12 +101,13 @@ class TransactionService
 
     private function createTransferCredit(TransactionData $data, Transfer $transfer): void
     {
-        $to_account = $data->destination_account;
-
         $credit_result = $this->createTransaction(
             $data,
+            false,
             $transfer,
         );
+
+        $to_account = $data->destination_account->refresh();
 
         $to_account->credit($data->amount);
 
@@ -114,15 +116,20 @@ class TransactionService
         }
     }
 
-    private function createTransaction(TransactionData $data, ?Transfer $transfer = null): CreateTransactionResult
+    private function createTransaction(TransactionData $data, bool $is_debit, ?Transfer $transfer = null): CreateTransactionResult
     {
-        $is_latest = $data->source_account->isTransactionDateLatest($data->transacted_at);
-        $is_debit = $data->type === TransactionType::EXPENSE || $transfer?->from_account_id === $data->source_account->id;
-        $running_balance = $data->source_account->current_balance;
+        $account = $data->source_account->refresh();
+
+        if (!is_null($transfer) && !$is_debit) {
+            $account = $data->destination_account->refresh();
+        }
+
+        $is_latest = $account->isLatestTransactionDate($data->transacted_at, $data->old_transaction?->id);
+        $running_balance = $account->current_balance;
 
         if (!$is_latest) {
-            $previous_transaction = $data->source_account->getTransactionBeforeDatetime($data->transacted_at);
-            $previous_running_balance = $previous_transaction?->running_balance ?? $data->source_account->initial_balance;
+            $previous_transaction = $account->getTransactionBeforeDatetime($data->transacted_at);
+            $previous_running_balance = $previous_transaction?->running_balance ?? $account->initial_balance;
             $running_balance = $previous_running_balance;
         }
 
@@ -132,7 +139,7 @@ class TransactionService
 
         $transaction = Transaction::create([
             "user_id" => $data->user->id,
-            "account_id" => $data->source_account->id,
+            "account_id" => $account->id,
             "amount" => $data->amount,
             "type" => $data->type,
             "transacted_at" => $data->transacted_at,
@@ -173,7 +180,8 @@ class TransactionService
         if (
             $data->type !== $transaction->type
             || $data->amount !== $transaction->amount
-            || $data->source_account !== $transaction->account_id
+            || ($transaction->isTransferCredit() && ($data->destination_account !== $transaction->account_id))
+            || !$transaction->transfer && $data->source_account !== $transaction->account_id
             || $data->transacted_at !== $transaction->transacted_at
             || $data->transfer_fee !== $transaction->transfer_fee
         ) {

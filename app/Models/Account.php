@@ -6,13 +6,16 @@ namespace App\Models;
 
 use App\Enums\AccountType;
 use App\Enums\Currency;
+use App\Observers\AccountObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
+#[ObservedBy([AccountObserver::class])]
 class Account extends Model
 {
     use HasFactory;
@@ -34,59 +37,6 @@ class Account extends Model
             "current_balance" => "float",
             "initial_balance" => "float",
         ];
-    }
-
-    /**
-     * @todo Add the side effects of updating Account details (e.g. balance, currency).
-     */
-    protected static function booted(): void
-    {
-        static::created(function (self $account) {
-            /**
-             * @todo Use the previous month's final running balance when creating a new stat record.
-             */
-            $stats = DashboardStats::firstOrNew(
-                [
-                    "user_id" => $account->user_id,
-                    "currency" => $account->currency,
-                    "month" => now()->month,
-                    "year" => now()->year,
-                ]
-            );
-
-            $stats->total_balance += $account->initial_balance;
-            $stats->save();
-        });
-
-        static::deleting(function (self $account) {
-            /**
-             * Triggers the delete model event for each transaction instead of mass deletion or cascade deletes.
-             * This ensures that all transaction reversals are executed properly.
-             */
-            $account->transactions()->each(fn (Transaction $transaction) => $transaction->delete());
-
-            /**
-             * Set the transfer account references to null instead of deleting.
-             * This ensures that the pair account does not lose its own transfer record.
-             */
-            $account->debitTransfers()->update([
-                "from_account_id" => null,
-            ]);
-
-            $account->creditTransfers()->update([
-                "to_account_id" => null,
-            ]);
-
-            DashboardStats::where("user_id", $account->user_id)
-                ->where("currency", $account->currency)
-                ->whereRaw(
-                    "(year > ? OR (year = ? AND month >= ?))",
-                    [$account->created_at->year, $account->created_at->year, $account->created_at->month]
-                )
-                ->update([
-                    "total_balance" => DB::raw("total_balance - ({$account->initial_balance})"),
-                ]);
-        });
     }
 
     public function user(): BelongsTo
@@ -111,19 +61,30 @@ class Account extends Model
 
     public function debit(float $amount): void
     {
-        $this->current_balance -= $amount;
-        $this->save();
+        $this->decrement("current_balance", $amount);
     }
 
     public function credit(float $amount): void
     {
-        $this->current_balance += $amount;
-        $this->save();
+        $this->increment("current_balance", $amount);
     }
 
-    public function isTransactionDateLatest(Carbon $transacted_at): bool
+    /**
+     * Checks if this account has transactions that are dated after $transacted_at.
+     */
+    public function isLatestTransactionDate(Carbon $transacted_at, ?int $id = null): bool
     {
-        return !$this->transactions()->where("transacted_at", ">", $transacted_at)->exists();
+        return !$this->transactions()
+            ->where(fn (Builder $query) => $query
+                ->where("transacted_at", ">", $transacted_at)
+                ->when(!is_null($id), fn ($query) => $query
+                    ->orWhere(fn (Builder $query) => $query
+                        ->where("transacted_at", $transacted_at)
+                        ->where("id", ">", $id)
+                    )
+                )
+            )
+            ->exists();
     }
 
     public function getTransactionBeforeDatetime(Carbon $transacted_at): ?Transaction

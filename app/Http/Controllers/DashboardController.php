@@ -8,7 +8,6 @@ use App\Enums\Currency;
 use App\Http\Requests\DashboardStatsRequest;
 use App\Http\Resources\TransactionResource;
 use App\Services\DashboardService;
-use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,30 +20,22 @@ class DashboardController extends Controller
         $this->dashboard_service = $dashboard_service;
     }
 
-    public function index(DashboardStatsRequest $request): Response|RedirectResponse
+    public function index(DashboardStatsRequest $request): Response
     {
         $inputs = $request->safe();
         $user = $request->user();
 
-        $stats = $user->dashboardStats()
-            ->where("year", $inputs->year)
-            ->where("currency", $inputs->currency)
-            ->get();
-
-        $month = $stats->firstWhere("month", $inputs->month);
-
-        $yearly_data = $this->dashboard_service->generateYearlyData($stats, $inputs);
-        $monthly_data = $this->dashboard_service->generateMonthlyData($month, $inputs);
-        $recent_transactions = $user->transactions()
-            ->whereCurrency(Currency::from($inputs->currency))
-            ->orderByDesc("transacted_at")
-            ->orderByDesc("id")
-            ->paginate(10);
+        $dashboard_data = $this->dashboard_service->generateDashboardData(
+            $user,
+            Currency::from($inputs->currency),
+            (int) $inputs->year,
+            (int) $inputs->month
+        );
 
         return Inertia::render("dashboard", [
-            "yearly_data" => $yearly_data,
-            "monthly_data" => $monthly_data,
-            "recent_transactions" => TransactionResource::collection($recent_transactions),
+            "yearly_data" => $dashboard_data->get("yearly_data"),
+            "monthly_data" => $dashboard_data->get("monthly_data"),
+            "recent_transactions" => TransactionResource::collection($dashboard_data->get("recent_transactions")),
         ]);
     }
 }

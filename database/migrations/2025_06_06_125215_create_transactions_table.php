@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId("user_id")->constrained("users");
             $table->foreignId("account_id")->constrained("accounts");
             $table->foreignId("category_id")->nullable()->constrained("categories");
-            $table->foreignId("transfer_id")->nullable()->constrained("transfers")->onDelete("cascade");
+            $table->foreignId("transfer_id")->nullable()->constrained("transfers");
             $table->double("amount");
             $table->string("type");
             $table->double("running_balance");

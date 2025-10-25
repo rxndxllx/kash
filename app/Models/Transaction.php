@@ -6,12 +6,15 @@ namespace App\Models;
 
 use App\Enums\Currency;
 use App\Enums\TransactionType;
+use App\Observers\TransactionObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[ObservedBy([TransactionObserver::class])]
 class Transaction extends Model
 {
     protected $fillable = [
@@ -36,74 +39,6 @@ class Transaction extends Model
         ];
     }
 
-    protected static function booted(): void
-    {
-        static::created(function (self $transaction) {
-            $stats = DashboardStats::firstOrNew([
-                "user_id" => $transaction->user_id,
-                "currency" => $transaction->currency,
-                "month" => $transaction->transacted_at->month,
-                "year" => $transaction->transacted_at->year,
-            ]);
-
-            switch ($transaction->type) {
-                case TransactionType::INCOME:
-                    $stats->total_balance += $transaction->amount;
-                    $stats->total_income += $transaction->amount;
-                    break;
-
-                case TransactionType::EXPENSE:
-                    $stats->total_balance -= $transaction->amount;
-                    $stats->total_expense += $transaction->amount;
-                    break;
-            }
-
-            $stats->save();
-        });
-
-        /**
-         * Reverse the balances and dashboard statistics
-         */
-        static::deleted(function (Transaction $transaction) {
-            if ($transaction->type === TransactionType::INCOME) {
-                $transaction->account->debit($transaction->amount);
-            } elseif ($transaction->type === TransactionType::EXPENSE) {
-                $transaction->account->credit($transaction->amount);
-            } elseif ($transaction->type === TransactionType::TRANSFER) {
-                $is_debit = $transaction->isDebit();
-                $pair = $transaction->transferPair();
-
-                if ($is_debit) {
-                    $transaction->account->credit($transaction->amount);
-                    $pair->account->debit($transaction->amount);
-                }
-
-                return;
-            }
-
-            $stats = DashboardStats::firstOrNew([
-                "user_id" => $transaction->user_id,
-                "currency" => $transaction->currency,
-                "month" => $transaction->transacted_at->month,
-                "year" => $transaction->transacted_at->year,
-            ]);
-
-            switch ($transaction->type) {
-                case TransactionType::INCOME:
-                    $stats->total_balance -= $transaction->amount;
-                    $stats->total_income -= $transaction->amount;
-                    break;
-
-                case TransactionType::EXPENSE:
-                    $stats->total_balance += $transaction->amount;
-                    $stats->total_expense -= $transaction->amount;
-                    break;
-            }
-
-            $stats->save();
-        });
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -112,6 +47,11 @@ class Transaction extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function transfer(): BelongsTo
+    {
+        return $this->belongsTo(Transfer::class);
     }
 
     public function category(): BelongsTo
