@@ -10,7 +10,7 @@ import { router, useForm } from "@inertiajs/react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { type Paginated } from "@/types/models";
-import { type TableFilter } from "@/types";
+import { FilterData, FilterKeys, type TableFilter } from "@/types";
 import useAuth from "@/hooks/use-auth";
 
 /**
@@ -91,7 +91,7 @@ export default function DataTable<T>({ table, data, filters, className }: { tabl
  * @todo
  * 1. Make this responsive
  */
-export function DataTableFilters<T>({ tableData, filters }: { tableData?: Paginated<T>, filters?: TableFilter[] }) {
+export function DataTableFilters<K extends string, T>({ tableData, filters }: { tableData?: Paginated<T>, filters?: TableFilter<K>[] }) {
     const user = useAuth();
     const [isFiltering, setIsFiltering] = useState(false);
 
@@ -101,13 +101,13 @@ export function DataTableFilters<T>({ tableData, filters }: { tableData?: Pagina
      * @todo
      * 1. filters property should be REQUIRED
      */
-    const defaultValues = filters?.reduce<Record<string, string>>(
+    const defaultValues = filters?.reduce<FilterData<K>>(
         (acc, { key, defaultValue }) => ({
             ...acc,
             [key]: params.get(key) ?? (isFunction(defaultValue) ? defaultValue({ user }) : defaultValue) ?? ""
         }),
-        tableData ? { page: "1" } : {}
-    ) ?? {};
+        tableData ? { page: "1" } as FilterData<K> : {} as FilterData<K>
+    ) ?? {} as FilterData<K>;
 
     const hasParams = Array.from(params.keys()).length > 0;
     const hasNonEmptyDefault = Object.entries(defaultValues).some(
@@ -126,7 +126,7 @@ export function DataTableFilters<T>({ tableData, filters }: { tableData?: Pagina
      */
     const { data, setData, reset } = useForm(defaultValues);
 
-    const handleApplyFilter = (key: string, value: string) => {
+    const handleApplyFilter = (key: FilterKeys<K>, value: string) => {
         setIsFiltering(true);
         setData(key, value);
 
@@ -184,6 +184,7 @@ export function DataTableFilters<T>({ tableData, filters }: { tableData?: Pagina
                                         <SelectItem
                                             value={option.value}
                                             key={option.value}
+                                            disabled={isFunction(filter.disabled) ? filter.disabled({ data, value: option.value }) : false}
                                         >
                                             {option.title}
                                         </SelectItem>
@@ -196,7 +197,7 @@ export function DataTableFilters<T>({ tableData, filters }: { tableData?: Pagina
                     if (filter.type === "custom") {
                         return (
                             <Fragment key={filter.key}>
-                                {filter.component({ isFiltering, value: data[filter.key], handleApplyFilter })}
+                                {filter.component({ data, isFiltering, value: data[filter.key], handleApplyFilter })}
                             </Fragment>
                         )
                     }

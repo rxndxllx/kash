@@ -36,29 +36,32 @@ export interface SharedData {
     [key: string]: unknown;
 }
 
-export interface BaseTableFilter {
-    key: string;
+export interface BaseTableFilter<K> {
+    key: K;
     defaultValue?: string|((props: { user: User; }) => string);
 }
 
-interface SelectTableFilter extends BaseTableFilter {
+interface SelectTableFilter<K> extends BaseTableFilter<K> {
     type: "select";
     placeholder: string;
     options: {
         title: string;
         value: string;
     }[];
+    disabled?: (args: { data: Record<string, string>, value: string }) => boolean;
 }
 
-interface SearchBarTableFilter extends BaseTableFilter {
+interface SearchBarTableFilter extends BaseTableFilter<"search"> {
     type: "searchBar";
     placeholder: string;
     key: "search";
 }
 
-interface CustomTableFilter extends BaseTableFilter {
+interface CustomTableFilter<K extends string> extends BaseTableFilter<K> {
     type: "custom";
-    component: (props: { isFiltering: boolean; value: string; handleApplyFilter: (key: string, value: string) => void }) => JSX.Element;
+    component: (props: {data: FilterData<K>, isFiltering: boolean; value: string; handleApplyFilter: (key: FilterKeys<K>, value: string) => void }) => JSX.Element;
 }
 
-export type TableFilter = SearchBarTableFilter | SelectTableFilter | CustomTableFilter;
+export type TableFilter<K extends string = string> = SearchBarTableFilter | SelectTableFilter<K> | CustomTableFilter<K>;
+export type FilterKeys<K> = K | "page" | "search";
+export type FilterData<K extends string> = Record<FilterKeys<K>, string>;

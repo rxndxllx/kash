@@ -26,10 +26,13 @@ class DashboardStatsRequest extends FormRequest
 
     public function rules(): array
     {
+        $max_year = now()->year;
+        $min_year = now()->subYear(5)->year;
+
         return [
             "currency" => ["required", Rule::enum(Currency::class)],
             "month" => ["required", "numeric", "min:1", "max:12"],
-            "year" => ["required", "numeric", "min:2025", "digits:4"],
+            "year" => ["required", "numeric", "min:$min_year", "max:$max_year", "digits:4"],
         ];
     }
 }

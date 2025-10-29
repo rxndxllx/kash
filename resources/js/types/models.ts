@@ -1,4 +1,4 @@
-import { AccountType, Currency, TransactionType } from "@/lib/enums";
+import { AccountType, Currency, TransactionType, TrendType } from "@/lib/enums";
 
 export interface User {
     id: number;
@@ -85,5 +85,32 @@ export interface Paginated<T> extends Resource<T> {
             label: string;
             active: boolean;
         }[];
+    };
+}
+
+export interface CurrencyDetails {
+    code: Currency,
+    name: string;
+    country_code: string;
+    country: string;
+}
+
+export interface MonthlyData extends Omit<DashboardStats, "currency"> {
+    currency: CurrencyDetails;
+    cash_flow: number;
+    top_incomes: {
+        category: Category["title"];
+        total_amount: number;
+        percentage: number;
+    }[];
+    top_expenses: {
+        category: Category["title"],
+        total_amount: number;
+        percentage: number;
+    }[];
+    balance_insights: {
+        percentage: number;
+        difference: number;
+        trend_type: TrendType;
     };
 }

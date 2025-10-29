@@ -89,15 +89,24 @@ class DashboardStats extends Model
         );
     }
 
-    public static function findOrCreateWithLastKnownBalance(int $user_id, Currency $currency, int $year, int $month): self
-    {
-        $last_known_stats = self::select("total_balance")
+    public static function lastKnownStats(
+        int $user_id,
+        Currency $currency,
+        int $month,
+        int $year
+    ): ?self {
+        return self::select("total_balance")
             ->where("user_id", $user_id)
             ->where("currency", $currency)
             ->beforeMonth($month, $year)
             ->orderByDesc("year")
             ->orderByDesc("month")
             ->first();
+    }
+
+    public static function findOrCreateWithLastKnownBalance(int $user_id, Currency $currency, int $year, int $month): self
+    {
+        $last_known_stats = self::lastKnownStats($user_id, $currency, $month, $year);
 
         return self::firstOrCreate(
             [

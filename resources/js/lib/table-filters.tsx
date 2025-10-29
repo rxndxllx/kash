@@ -5,8 +5,9 @@ import dayjs from "dayjs";
 import SelectAccount from "@/components/select-account";
 import SelectCategory from "@/components/select-category";
 import SelectCurrency from "@/components/select-currency";
+import SelectMonth from "@/components/select-month";
 
-export const ACCOUNTS_TABLE_FILTERS: TableFilter[] = [
+export const ACCOUNTS_TABLE_FILTERS: TableFilter<"currency" | "type">[] = [
     {
         type: "searchBar",
         key: "search",
@@ -34,7 +35,7 @@ export const ACCOUNTS_TABLE_FILTERS: TableFilter[] = [
     }
 ];
 
-export const TRANSACTIONS_TABLE_FILTERS: TableFilter[] = [
+export const TRANSACTIONS_TABLE_FILTERS: TableFilter<"account" | "type" | "currency" | "category">[] = [
     {
         type: "custom",
         key: "account",
@@ -83,7 +84,7 @@ export const TRANSACTIONS_TABLE_FILTERS: TableFilter[] = [
     },
 ];
 
-export const DASHBOARD_FILTERS: TableFilter[] = [
+export const DASHBOARD_FILTERS: TableFilter<"currency" | "month" | "year">[] = [
     {
         type: "custom",
         key: "currency",
@@ -97,33 +98,42 @@ export const DASHBOARD_FILTERS: TableFilter[] = [
         defaultValue: ({ user }) => user.base_currency,
     },
     {
-        type: "select",
+        type: "custom",
         key: "month",
-        options: [
-            { title: "January", value: "1" },
-            { title: "February", value: "2" },
-            { title: "March", value: "3" },
-            { title: "April", value: "4" },
-            { title: "May", value: "5" },
-            { title: "June", value: "6" },
-            { title: "July", value: "7" },
-            { title: "August", value: "8" },
-            { title: "September", value: "9" },
-            { title: "October", value: "10" },
-            { title: "November", value: "11" },
-            { title: "December", value: "12" },
-        ],
-        placeholder: "Month",
+        component: ({ data, value, isFiltering, handleApplyFilter }) => {
+            const selectedYear = parseInt(data.year);
+            const selectedMonth = parseInt(value);
+            const currentYear = dayjs().year();
+            const currentMonth = dayjs().month() + 1;
+
+            if (selectedYear === currentYear && selectedMonth > currentMonth) {
+                handleApplyFilter("month", currentMonth.toString())
+            }
+            
+            return (
+                <SelectMonth
+                    value={value}
+                    disabled={isFiltering}
+                    onValueChange={(value) => handleApplyFilter("month", value)}
+                    showFuture={false}
+                    year={data.year}
+                />
+            )
+        },
         defaultValue: (dayjs().month() + 1).toString(),
     },
     {
         type: "select",
         key: "year",
         options: [
+            { title: "2020", value: "2020" },
+            { title: "2021", value: "2021" },
+            { title: "2022", value: "2022" },
+            { title: "2023", value: "2023" },
+            { title: "2024", value: "2024" },
             { title: "2025", value: "2025" },
         ],
         placeholder: "Year",
         defaultValue: (dayjs().year()).toString(),
     },
-
 ];

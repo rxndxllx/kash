@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
+use Illuminate\Support\Collection;
+
 enum Currency: string
 {
     case USD = "USD";
@@ -34,5 +36,15 @@ enum Currency: string
             self::PHP => "Philippines",
             default => "Unknown entity"
         };
+    }
+
+    public function details(): Collection
+    {
+        return collect([
+            "code" => $this->value,
+            "name" => $this->fullName(),
+            "country_code" => $this->countryCode(),
+            "country" => $this->countryName(),
+        ]);
     }
 }

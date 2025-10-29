@@ -19,7 +19,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { DashboardStats } from "@/types/models"
+import { type MonthlyData } from "@/types/models"
 
 export const description = "A stacked bar chart with a legend"
 
@@ -38,7 +38,7 @@ const chartConfig = {
  * @todo
  * 1. Clean this component. This should be reusable.
  */
-export function ChartBarStacked({ data }: { data: DashboardStats[] }) {
+export function ChartBarStacked({ data }: { data: MonthlyData[] }) {
   return (
     <Card>
       <CardHeader>

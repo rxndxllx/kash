@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\Currency;
 use App\Enums\TransactionType;
+use App\Enums\TrendType;
 use App\Models\DashboardStats;
 use App\Models\Transaction;
 use App\Models\User;
@@ -26,11 +27,12 @@ class DashboardService
     public function generateDashboardData(User $user, Currency $currency, int $year, int $month): Collection
     {
         $stats = $user->dashboardStats()->where("year", $year)->where("currency", $currency)->get();
-        $monthly_stats = $stats->firstWhere("month", $month);
+        $yearly_data = $this->generateYearlyData($stats, $user, $currency, $year);
+        $monthly_data = $yearly_data->first(fn (Collection $item) => $item->get("month") === $month);
 
         return collect([
-            "yearly_data" => $this->generateYearlyData($stats, $currency, $year),
-            "monthly_data" => $this->generateMonthlyData($monthly_stats, $currency, $month, $year, $user),
+            "yearly_data" => $yearly_data,
+            "monthly_data" => $monthly_data,
             "recent_transactions" => $user->transactions()
                 ->whereCurrency($currency)
                 ->orderByDesc("transacted_at")
@@ -39,63 +41,64 @@ class DashboardService
         ]);
     }
 
-    /**
-     * Build yearly data for all 12 months, filling missing months with zeros.
-     */
-    private function generateYearlyData(Collection $data, Currency $currency, int $year): Collection
+    private function generateYearlyData(Collection $data, User $user, Currency $currency, int $year): Collection
     {
         $indexed = $data->keyBy("month");
+        $balance = 0;
 
-        return collect()->times(12, function (int $month) use ($indexed, $currency, $year) {
+        return collect()->times(12, function (int $month) use ($indexed, $currency, $year, $user, &$balance) {
             $stat = $indexed->get($month);
 
-            return [
-                "month" => $month,
+            /**
+             * Set the previous year's last known balance
+             * as the starting balance for the month of January.
+             */
+            if ($month === 1) {
+                $balance = DashboardStats::lastKnownStats(
+                    $user->id,
+                    $currency,
+                    $month,
+                    $year
+                )?->total_balance ?? 0;
+            }
+
+            /**
+             * If the current month has no stats record, use the last known balance.
+             */
+            $previous_total_balance = $balance;
+            $balance = $stat?->total_balance ?? $balance;
+
+            $top_income_categories = $this->getTopCategories(
+                $user,
+                TransactionType::INCOME,
+                $currency,
+                $month,
+                $year,
+                $stat?->total_income ?? 0,
+            );
+
+            $top_expense_categories = $this->getTopCategories(
+                $user,
+                TransactionType::EXPENSE,
+                $currency,
+                $month,
+                $year,
+                $stat?->total_expense ?? 0,
+            );
+
+            return collect([
+                "total_balance" => $balance,
                 "total_expense" => $stat?->total_expense ?? 0,
                 "total_income" => $stat?->total_income ?? 0,
-                "currency" => $stat?->currency ?? $currency,
-                "year" => $stat?->year ?? $year,
-            ];
+                "currency" => $currency->details(),
+                "month" => $month,
+                "year" => $year,
+                "cash_flow" => $stat?->cash_flow ?? 0,
+                "top_incomes" => $top_income_categories,
+                "top_expenses" => $top_expense_categories,
+                "balance_insights" => $this->generateBalanceInsights($previous_total_balance, $balance),
+            ]);
         });
-    }
-
-    /**
-     * Build monthly data for the requested month with default values.
-     */
-    private function generateMonthlyData(
-        ?DashboardStats $data,
-        Currency $currency,
-        int $month,
-        int $year,
-        User $user
-    ): Collection {
-        $top_income_categories = $this->getTopCategories(
-            $user,
-            TransactionType::INCOME,
-            $currency,
-            $month,
-            $data?->total_income ?? 0,
-        );
-
-        $top_expense_categories = $this->getTopCategories(
-            $user,
-            TransactionType::EXPENSE,
-            $currency,
-            $month,
-            $data?->total_expense ?? 0,
-        );
-
-        return collect([
-            "total_balance" => $data?->total_balance ?? 0,
-            "total_expense" => $data?->total_expense ?? 0,
-            "total_income" => $data?->total_income ?? 0,
-            "currency" => $data?->currency ?? $currency,
-            "month" => $data?->month ?? $month,
-            "year" => $data?->year ?? $year,
-            "cash_flow" => $data?->cash_flow ?? 0,
-            "top_incomes" => $top_income_categories,
-            "top_expenses" => $top_expense_categories,
-        ]);
     }
 
     private function getTopCategories(
@@ -103,6 +106,7 @@ class DashboardService
         TransactionType $type,
         Currency $currency,
         int $month,
+        int $year,
         float $total_amount
     ): Collection {
         $transactions = $user->transactions()
@@ -111,6 +115,7 @@ class DashboardService
             ->whereType($type)
             ->whereCurrency($currency)
             ->whereMonth("transacted_at", $month)
+            ->whereYear("transacted_at", $year)
             ->groupBy("category_id")
             ->orderByDesc("total")
             ->limit(3)
@@ -123,6 +128,34 @@ class DashboardService
         ]);
 
         return $result;
+    }
+
+    private function generateBalanceInsights(float $previous_balance, float $current_balance): Collection
+    {
+        $percentage = 0;
+        $trend_type = TrendType::NO_ACTIVITY;
+        $difference = $current_balance - $previous_balance;
+
+        switch (true) {
+            case isEpsilonZero($previous_balance) && $current_balance > 0:
+                $percentage = 100;
+                $trend_type = TrendType::NEW_POSITIVE;
+                break;
+            case isEpsilonZero($previous_balance) && $current_balance < 0:
+                $percentage = -100;
+                $trend_type = TrendType::NEW_NEGATIVE;
+                break;
+            case !isEpsilonZero($previous_balance) && !isEpsilonZero($difference):
+                $percentage = computePercentage($difference, abs($previous_balance));
+                $trend_type = $percentage > 0 ? TrendType::POSITIVE : TrendType::NEGATIVE;
+                break;
+        }
+
+        return collect([
+            "percentage" => $percentage,
+            "trend_type" => $trend_type,
+            "difference" => $difference,
+        ]);
     }
 
     public function forwardRecalculateMonthlyTotalBalance(
